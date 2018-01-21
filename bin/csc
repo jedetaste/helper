@@ -1,0 +1,92 @@
+#!/bin/bash
+	
+	currentuser=$(python -c 'from SystemConfiguration import SCDynamicStoreCopyConsoleUser; import sys; username = (SCDynamicStoreCopyConsoleUser(None, None, None) or [None])[0]; username = [username,""][username in [u"loginwindow", None, u""]]; sys.stdout.write(username + "\n");')
+	
+	if [ ! -z "${currentuser}" ]; then
+	
+		if [ -s "/Users/${currentuser}/.rnd" ]; then
+	
+			rm -rf "/Users/${currentuser}/.rnd"
+	
+		fi
+	
+	fi
+	
+	randstring=$(/usr/bin/hexdump -e '/1 "%02x"' -n8 < /dev/urandom)
+	tmp="/private/var/tmp/${randstring}"
+	download="${tmp}/download"
+	
+	/bin/mkdir -p "${tmp}"
+	/bin/mkdir -p "${download}"
+	
+	arg="${1}"
+	
+	if [ ! -z "${1}" ]; then
+	
+		echo "Process '${1}'"
+	
+	else
+	
+		echo "Error: Add download URL as argument"
+	
+		exit 1
+	
+	fi
+	
+	cd "${download}"
+	curl -# -O -J -L "${arg}"
+	cd
+	
+	if [ ! -z "$(find "${download}" -name "*.dmg" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
+		
+		dlfile=$(find "${download}" -name "*.dmg" -execdir echo '{}' ';' -print | sed -n 1p)
+		
+		id="${dlfile%.*}"
+		
+		extension="dmg"
+		
+	else
+		
+		if [ ! -z "$(find "${download}" -name "*.zip" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
+			
+			dlfile=$(find "${download}" -name "*.zip" -execdir echo '{}' ';' -print | sed -n 1p)
+			
+			id="${dlfile%.*}"
+			
+			extension="zip"
+			
+		else
+			
+			if [ ! -z "$(find "${download}" -name "*.pkg" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
+				
+				dlfile=$(find "${download}" -name "*.pkg" -execdir echo '{}' ';' -print | sed -n 1p)
+				
+				id="${dlfile%.*}"
+				
+				extension="pkg"
+				
+			else
+				
+				if [ ! -z "$(find "${download}" -name "*.bz2" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
+					
+					dlfile=$(find "${download}" -name "*.bz2" -execdir echo '{}' ';' -print | sed -n 1p)
+					
+					id="${dlfile%.*}"
+					
+					extension="bz2"
+					
+				fi
+				
+			fi
+			
+		fi
+		
+	fi
+	
+	checksum=$(openssl dgst -sha256 "${download}/${id}.${extension}" | sed 's/^.* //')
+	
+	echo "SHA256 (sha256) checksum is '${checksum}'"
+	
+	/bin/rm -rf "${tmp}"
+	
+exit 0
