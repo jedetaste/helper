@@ -3,6 +3,13 @@
   readonly progName=$(/usr/bin/basename ${0})
   readonly progVersion="1.1"
   
+  readonly boldEcho=$(/usr/bin/tput bold)
+  readonly normalEcho=$(/usr/bin/tput sgr0)
+  readonly redEcho=$(/usr/bin/tput setaf 1)
+  readonly greenEcho=$(/usr/bin/tput setaf 2)
+  readonly blueEcho=$(/usr/bin/tput setaf 4)
+  readonly yellowEcho=$(/usr/bin/tput setaf 3)
+  
   tmpFolder=$(getconf DARWIN_USER_CACHE_DIR)
   randString=$(/usr/bin/openssl rand -hex 5)
   workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
@@ -31,7 +38,7 @@
   
   SHASumComputed=$(/usr/bin/shasum -a 256 -p "${getFilename}" | cut -d' ' -f1)
   
-  echo "Filename:          '${fileBasename}.${fileExtension}'"
-  echo "SHA-256 Checksum:  '${SHASumComputed}'"
+  echo "${boldEcho}Filename${normalEcho}          '${boldEcho}${blueEcho}${fileBasename}${normalEcho}.${boldEcho}${yellowEcho}${fileExtension}${normalEcho}'"
+  echo "${boldEcho}SHA-256 Checksum${normalEcho}  '${boldEcho}${greenEcho}${SHASumComputed}${normalEcho}'"
   
   rm -rf "${workDir}"
