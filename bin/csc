@@ -1,92 +1,37 @@
 #!/bin/bash
   
-  currentuser=$(python -c 'from SystemConfiguration import SCDynamicStoreCopyConsoleUser; import sys; username = (SCDynamicStoreCopyConsoleUser(None, None, None) or [None])[0]; username = [username,""][username in [u"loginwindow", None, u""]]; sys.stdout.write(username + "\n");')
+  readonly progName=$(/usr/bin/basename ${0})
+  readonly progVersion="1.1"
   
-  if [ ! -z "${currentuser}" ]; then
+  tmpFolder=$(getconf DARWIN_USER_CACHE_DIR)
+  randString=$(/usr/bin/openssl rand -hex 5)
+  workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
   
-    if [ -s "/Users/${currentuser}/.rnd" ]; then
+  readonly cscArg="${1}"
   
-      rm -rf "/Users/${currentuser}/.rnd"
-  
-    fi
-  
+  if [ -z "${1}" ]; then
+    echo "Error: Invalid argument" && exit 1
   fi
   
-  randstring=$(/usr/bin/hexdump -e '/1 "%02x"' -n8 < /dev/urandom)
-  tmp="/private/var/tmp/${randstring}"
-  download="${tmp}/download"
+  cd "${workDir}" && /usr/bin/curl \
+    --show-error \
+    --fail \
+    --location \
+    --remote-time \
+    --silent \
+    --remote-name \
+    --remote-header-name \
+    "${cscArg}"
   
-  /bin/mkdir -p "${tmp}"
-  /bin/mkdir -p "${download}"
+  getFilename=$(/usr/bin/find "${workDir}" -name "*.*")
   
-  arg="${1}"
+  fileBasename=$(/usr/bin/basename "${getFilename}") && fileBasename=$(/usr/bin/basename ${fileBasename%.*})
+  fileExtension="${getFilename##*.}"
+  filePath="${getFilename%.*}"
   
-  if [ ! -z "${1}" ]; then
+  SHASumComputed=$(/usr/bin/shasum -a 256 -p "${getFilename}" | cut -d' ' -f1)
   
-    echo "Process '${1}'"
+  echo "Filename:          '${fileBasename}.${fileExtension}'"
+  echo "SHA-256 Checksum:  '${SHASumComputed}'"
   
-  else
-  
-    echo "Error: Add download URL as argument"
-  
-    exit 1
-  
-  fi
-  
-  cd "${download}"
-  curl -# -O -J -L "${arg}"
-  cd
-  
-  if [ ! -z "$(find "${download}" -name "*.dmg" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
-    
-    dlfile=$(find "${download}" -name "*.dmg" -execdir echo '{}' ';' -print | sed -n 1p)
-    
-    id="${dlfile%.*}"
-    
-    extension="dmg"
-    
-  else
-    
-    if [ ! -z "$(find "${download}" -name "*.zip" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
-      
-      dlfile=$(find "${download}" -name "*.zip" -execdir echo '{}' ';' -print | sed -n 1p)
-      
-      id="${dlfile%.*}"
-      
-      extension="zip"
-      
-    else
-      
-      if [ ! -z "$(find "${download}" -name "*.pkg" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
-        
-        dlfile=$(find "${download}" -name "*.pkg" -execdir echo '{}' ';' -print | sed -n 1p)
-        
-        id="${dlfile%.*}"
-        
-        extension="pkg"
-        
-      else
-        
-        if [ ! -z "$(find "${download}" -name "*.bz2" -execdir echo '{}' ';' -print | sed -n 1p)" ]; then
-          
-          dlfile=$(find "${download}" -name "*.bz2" -execdir echo '{}' ';' -print | sed -n 1p)
-          
-          id="${dlfile%.*}"
-          
-          extension="bz2"
-          
-        fi
-        
-      fi
-      
-    fi
-    
-  fi
-  
-  checksum=$(openssl dgst -sha256 "${download}/${id}.${extension}" | sed 's/^.* //')
-  
-  echo "SHA256 (sha256) checksum is '${checksum}'"
-  
-  /bin/rm -rf "${tmp}"
-  
-exit 0
+  rm -rf "${workDir}"
