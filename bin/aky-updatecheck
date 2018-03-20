@@ -12,6 +12,8 @@
   
   if [ ! -s "/usr/local/aky/download-helper" ]; then
     echo "${redEcho}Error:${normalEcho} Please install 'aky Patch Management', download-helper was not found!" && exit 1
+  elif [ ! -s "/usr/local/bin/jq" ]; then
+    echo "${redEcho}Error:${normalEcho} Please install 'jq' command-line JSON processor (https://stedolan.github.io/jq/)!"
   fi
   
   tmpFolder=$(getconf DARWIN_USER_CACHE_DIR)
