@@ -39,10 +39,6 @@
     fileExtension=${fileName##*.}
     fileBasename="${fileName%.*}"
 
-    if [ "${fileExtension}" != "pkg" ] || [ "${fileExtension}" != "zip" ] || [ "${fileExtension}" != "dmg" ] || [ "${fileExtension}" != "tar.bz2" ]; then
-      echo "Error: Invalid argument" && exit 1
-    fi
-
   }
 
   function activeDownload() {
