@@ -1,0 +1,45 @@
+#!/bin/bash
+  
+  readonly progName=$(/usr/bin/basename ${0})
+  readonly progVersion="1.1"
+  
+  readonly boldEcho=$(/usr/bin/tput bold)
+  readonly normalEcho=$(/usr/bin/tput sgr0)
+  readonly redEcho=$(/usr/bin/tput setaf 1)
+  readonly greenEcho=$(/usr/bin/tput setaf 2)
+  readonly blueEcho=$(/usr/bin/tput setaf 4)
+  readonly yellowEcho=$(/usr/bin/tput setaf 3)
+  
+  if [ ! -s "/usr/local/aky/download-helper" ]; then
+    echo "${redEcho}Error:${normalEcho} Please install 'aky Patch Management', download-helper was not found!" && exit 1
+  fi
+  
+  tmpFolder=$(getconf DARWIN_USER_CACHE_DIR)
+  randString=$(/usr/bin/openssl rand -hex 5)
+  workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
+  
+  cd "${workDir}" && /usr/bin/git clone --quiet "https://github.com/jedetaste/aky.git"
+  
+  for json in "${workDir}"/aky/*.json; do
+    
+    recipeName=$(/usr/local/bin/jq -r '.[].id' "${json}")
+    expectedChecksum=$(/usr/local/bin/jq -r '.[].sha256' "${json}")
+    downloadURI=$(/usr/local/bin/jq -r '.[].download' "${json}")
+    
+    downloadedFile=$(/usr/local/bin/download-helper "${downloadURI}")
+    
+    computedChecksum=$(/usr/bin/shasum -a 256 -p "${downloadedFile}" | cut -d' ' -f1)
+    
+    if [ "${expectedChecksum}" == "${computedChecksum}" ]; then
+      echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${greenEcho}Valid${normalEcho}${boldEcho}'${normalEcho}"
+    elif [ "${expectedChecksum}" == "null" ]; then
+      echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${yellowEcho}Checksum Not Provided${normalEcho}${boldEcho}'${normalEcho}"
+    elif [ "${expectedChecksum}" != "${computedChecksum}" ]; then
+      echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${redEcho}Outdated${normalEcho}${boldEcho}'${normalEcho}"
+    fi
+    
+    rm -rf "${downloadFolder}"
+    
+  done
+  
+  rm -rf "${workDir}" && exit 1
