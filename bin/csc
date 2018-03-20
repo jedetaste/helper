@@ -73,13 +73,13 @@
 
   if [ "$(/usr/bin/curl -sL -w "%{http_code}" "${downloadURI}" -o /dev/null)" == "403" ]; then
     passiveDownload && displayOutput
+  elif [ "${fileExtension}" == "tar.bz2" ]; then
+    passiveDownload && displayOutput
   elif [ "${fileExtension}" == "pkg" ]; then
     activeDownload && displayOutput
   elif [ "${fileExtension}" == "zip" ]; then
     activeDownload && displayOutput
   elif [ "${fileExtension}" == "dmg" ]; then
-    activeDownload && displayOutput
-  elif [ "${fileExtension}" == "tar.bz2" ]; then
     activeDownload && displayOutput
   else
     passiveDownload && displayOutput
