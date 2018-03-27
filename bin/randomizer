@@ -1,13 +1,13 @@
 #!/bin/bash
 
-	nTimes="${1}"
+  nTimes="${1}"
 	
-	if [ ! -z ${nTimes} ]; then
-	  for ((n=0;n<${nTimes};n++)); do
-	    echo "$(openssl rand -hex 5)"
-	  done
-	elif [ -z ${nTimes} ]; then
-	  for ((n=0;n<10;n++)); do
-	    echo "$(openssl rand -hex 5)"
-	  done
-	fi
+  if [ ! -z ${nTimes} ]; then
+    for ((n=0;n<${nTimes};n++)); do
+      echo "$(openssl rand -hex 5)"
+    done
+  elif [ -z ${nTimes} ]; then
+    for ((n=0;n<10;n++)); do
+      echo "$(openssl rand -hex 5)"
+    done
+  fi
