@@ -7,7 +7,7 @@ if [ ! -z ${nTimes} ]; then
     echo "$(/usr/bin/openssl rand -hex 5)"
   done
 elif [ -z ${nTimes} ]; then
-  for ((n=0;n<10;n++)); do
+  for ((n=0;n<1;n++)); do
     echo "$(/usr/bin/openssl rand -hex 5)"
   done
 fi
