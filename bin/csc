@@ -1,86 +1,46 @@
 #!/bin/bash
-
+  
   readonly progName=$(/usr/bin/basename ${0})
   readonly progVersion="1.2"
+  
+  if [[ "${EUID}" -ne 0 ]]; then
+    echo "${progName}: This application must be run as root" && exit 1
+  fi
 
-  readonly boldEcho=$(/usr/bin/tput bold)
-  readonly normalEcho=$(/usr/bin/tput sgr0)
-  readonly redEcho=$(/usr/bin/tput setaf 1)
-  readonly greenEcho=$(/usr/bin/tput setaf 2)
-  readonly blueEcho=$(/usr/bin/tput setaf 4)
-  readonly yellowEcho=$(/usr/bin/tput setaf 3)
-
-  tmpFolder=$(getconf DARWIN_USER_CACHE_DIR)
-  randString=$(/usr/bin/openssl rand -hex 5)
-  workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
-
+  if [ -t 1 ]; then
+    readonly boldEcho=$(/usr/bin/tput bold)
+    readonly normalEcho=$(/usr/bin/tput sgr0)
+    readonly redEcho=$(/usr/bin/tput setaf 1)
+    readonly greenEcho=$(/usr/bin/tput setaf 2)
+    readonly blueEcho=$(/usr/bin/tput setaf 4)
+    readonly yellowEcho=$(/usr/bin/tput setaf 3)
+  else
+    readonly boldEcho=""
+    readonly normalEcho=""
+    readonly redEcho=""
+    readonly greenEcho=""
+    readonly blueEcho=""
+    readonly yellowEcho=""
+  fi
+  
   readonly downloadURI="${1}"
 
   if [ -z "${1}" ]; then
     echo "Error: Invalid argument" && exit 1
   fi
-
-  function passiveDownload() {
-
-    cd "${workDir}" && /usr/bin/curl \
-      --show-error \
-      --fail \
-      --location \
-      --remote-time \
-      --silent \
-      --remote-name \
-      --remote-header-name \
-      --user-agent "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 (KHTML, like Gecko) Version/10.0.3 Safari/602.4.8" \
-      "${downloadURI}"
-
-    getFilename=$(/usr/bin/find "${workDir}" -name "*.*")
-
-    fileName=$(/usr/bin/basename "${getFilename}")
-    fileExtension=${fileName##*.}
-    fileBasename="${fileName%.*}"
-
-  }
-
-  function activeDownload() {
-
-    /usr/bin/curl \
-      --show-error \
-      --fail \
-      --location \
-      --remote-time \
-      --output "${workDir}/${fileName}" \
-      --silent \
-      "${downloadURI}" \
-
-    getFilename="${workDir}/${fileName}"
-
-  }
-
-  function displayOutput() {
-
-    SHASumComputed=$(/usr/bin/shasum -a 256 -p "${getFilename}" | cut -d' ' -f1)
-
-    echo "${boldEcho}Filename${normalEcho}          '${boldEcho}${blueEcho}${fileBasename}${normalEcho}.${boldEcho}${yellowEcho}${fileExtension}${normalEcho}'"
-    echo "${boldEcho}SHA-256 Checksum${normalEcho}  '${boldEcho}${greenEcho}${SHASumComputed}${normalEcho}'"
-
-    rm -rf "${workDir}"
-
-  }
-
-  fileName=$(/usr/bin/basename "${downloadURI}")
+  
+  if [ ! -s "/usr/local/bin/download-helper" ]; then
+    echo "Error: Please install aky Patch Management" && exit 1
+  fi
+  
+  downloadedFile=$(/usr/local/bin/download-helper "${downloadURI}")
+  computedChecksum=$(/usr/bin/shasum -a 256 -p "${downloadedFile}" | cut -d' ' -f1)
+  
+  fileName=$(/usr/bin/basename "${downloadedFile}")
   fileExtension=${fileName##*.}
   fileBasename="${fileName%.*}"
-
-  if [ "$(/usr/bin/curl -sL -w "%{http_code}" "${downloadURI}" -o /dev/null)" == "403" ]; then
-    passiveDownload && displayOutput
-  elif [ "${fileExtension}" == "tar.bz2" ]; then
-    passiveDownload && displayOutput
-  elif [ "${fileExtension}" == "pkg" ]; then
-    activeDownload && displayOutput
-  elif [ "${fileExtension}" == "zip" ]; then
-    activeDownload && displayOutput
-  elif [ "${fileExtension}" == "dmg" ]; then
-    activeDownload && displayOutput
-  else
-    passiveDownload && displayOutput
-  fi
+  
+  echo "${boldEcho}Filename${normalEcho}          '${boldEcho}${blueEcho}${fileBasename}${normalEcho}.${boldEcho}${yellowEcho}${fileExtension}${normalEcho}'"
+  echo "${boldEcho}SHA-256 Checksum${normalEcho}  '${boldEcho}${greenEcho}${computedChecksum}${normalEcho}'"
+  
+  rm -rf "${downloadedFile}"
