@@ -1,0 +1,17 @@
+#!/bin/bash
+
+	readonly progName=$(/usr/bin/basename ${0})
+	readonly progVersion="1.0"
+	
+	uriArg="${1}"
+	
+	if [ -z "${1}" ]; then
+		echo "Error: Invalid argument" && exit 1
+	fi
+	
+	/usr/bin/curl \
+		--compressed \
+		--silent \
+		--location \
+		--user-agent 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36' \
+		"${uriArg}" | /usr/bin/sed 's|<pubDate>[^<]*</pubDate>||g' | /usr/bin/shasum --algorithm "256" | /usr/bin/cut -d' ' -f1
