@@ -1,0 +1,34 @@
+#!/bin/bash
+
+	readonly progName=$(/usr/bin/basename ${0})
+	readonly progVersion="1.0"
+	
+	argQueueName="${1}"
+	argURI="${2}"
+	argModel="${3}"
+	argLocation="${4}"
+	
+	if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]; then
+		echo "Error: Invalid argument" && exit 1
+	fi
+	
+	/usr/sbin/lpadmin -x "${argQueueName}" && /usr/sbin/lpadmin \
+		-p "${argQueueName}" \
+		-v "lpd://${argURI}/" \
+		-P "/Library/Printers/PPDs/Contents/Resources/${argModel}.gz" \
+		-o printer-is-shared=false \
+		-L "${argLocation}"
+	
+	/usr/sbin/cupsenable "${argQueueName}" -E && /usr/sbin/cupsaccept "${argQueueName}"
+	
+	# /usr/sbin/lpadmin -x "P1-O-05"
+	#
+	# /usr/sbin/lpadmin \
+	# 	-p "P1-O-05" \
+	# 	-v "lpd://192.168.110.50/" \
+	# 	-P "/Library/Printers/PPDs/Contents/Resources/Brother HL-5270DN series CUPS.gz" \
+	# 	-o printer-is-shared=false \
+	# 	-L "P1-O-05"
+	# 
+	# /usr/sbin/cupsenable "P1-O-05" -E
+	# /usr/sbin/cupsaccept "P1-O-05"	
