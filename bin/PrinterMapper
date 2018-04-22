@@ -12,7 +12,9 @@
 		echo "Error: Invalid argument" && exit 1
 	fi
 	
-	/usr/sbin/lpadmin -x "${argQueueName}" && /usr/sbin/lpadmin \
+	#/usr/sbin/lpadmin -x "${argQueueName}" &&
+	
+	/usr/sbin/lpadmin \
 		-p "${argQueueName}" \
 		-v "lpd://${argURI}/" \
 		-P "/Library/Printers/PPDs/Contents/Resources/${argModel}.gz" \
