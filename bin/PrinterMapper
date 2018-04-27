@@ -12,7 +12,9 @@
 		echo "Error: Invalid argument" && exit 1
 	fi
 	
-	#/usr/sbin/lpadmin -x "${argQueueName}" &&
+	if [ -s "/etc/cups/ppd/${argQueueName}.ppd" ]; then
+		/usr/sbin/lpadmin -x "${argQueueName}"
+	fi
 	
 	/usr/sbin/lpadmin \
 		-p "${argQueueName}" \
@@ -22,15 +24,3 @@
 		-L "${argLocation}"
 	
 	/usr/sbin/cupsenable "${argQueueName}" -E && /usr/sbin/cupsaccept "${argQueueName}"
-	
-	# /usr/sbin/lpadmin -x "P1-O-05"
-	#
-	# /usr/sbin/lpadmin \
-	# 	-p "P1-O-05" \
-	# 	-v "lpd://192.168.110.50/" \
-	# 	-P "/Library/Printers/PPDs/Contents/Resources/Brother HL-5270DN series CUPS.gz" \
-	# 	-o printer-is-shared=false \
-	# 	-L "P1-O-05"
-	# 
-	# /usr/sbin/cupsenable "P1-O-05" -E
-	# /usr/sbin/cupsaccept "P1-O-05"	
