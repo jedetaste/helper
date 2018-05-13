@@ -3,12 +3,21 @@
   readonly progName=$(/usr/bin/basename ${0})
   readonly progVersion="1.1"
   
-  readonly boldEcho=$(/usr/bin/tput bold)
-  readonly normalEcho=$(/usr/bin/tput sgr0)
-  readonly redEcho=$(/usr/bin/tput setaf 1)
-  readonly greenEcho=$(/usr/bin/tput setaf 2)
-  readonly blueEcho=$(/usr/bin/tput setaf 4)
-  readonly yellowEcho=$(/usr/bin/tput setaf 3)
+  if [ -t 1 ]; then
+    readonly boldEcho=$(/usr/bin/tput bold)
+    readonly normalEcho=$(/usr/bin/tput sgr0)
+    readonly redEcho=$(/usr/bin/tput setaf 1)
+    readonly greenEcho=$(/usr/bin/tput setaf 2)
+    readonly blueEcho=$(/usr/bin/tput setaf 4)
+    readonly yellowEcho=$(/usr/bin/tput setaf 3)
+  else
+    readonly boldEcho=""
+    readonly normalEcho=""
+    readonly redEcho=""
+    readonly greenEcho=""
+    readonly blueEcho=""
+    readonly yellowEcho=""
+  fi
   
   if [ ! -s "/usr/local/aky/download-helper" ]; then
     echo "${redEcho}Error:${normalEcho} Please install 'aky Patch Management', download-helper was not found!" && exit 1
