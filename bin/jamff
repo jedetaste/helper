@@ -1,0 +1,93 @@
+#!/bin/bash
+  
+  readonly progName=$(/usr/bin/basename ${0})
+  readonly progVersion="1.0"
+  
+  jamfUsername="${1}"
+  jamfPassword="${2}"
+  
+  if [ -z "${1}" ] && [ -z "${2}" ]; then
+    echo "Error: Invalid argument"
+    echo "  Please provide username and password"
+    echo "  $ ${progName} \"username\"\"password\"" && exit 1
+  fi
+  
+  readonly jamfBaseURL1="https://jss.anykeyit.ch:8443"
+  readonly jamfBaseURL2="https://jss2.anykeyit.ch:8443"
+  readonly jamfBaseURL3="https://jss3.anykeyit.ch:8443"
+  readonly jamfBaseURL4="https://jss4.anykeyit.ch"
+  readonly jamfBaseURL5="https://jss5.anykeyit.ch"
+  
+  readonly jamfComputerResource="JSSResource/computers"
+  readonly jamfMobileDevicesResource="JSSResource/mobiledevices"
+  
+  if [ -t 1 ]; then
+    readonly boldEcho=$(/usr/bin/tput bold)
+    readonly normalEcho=$(/usr/bin/tput sgr0)
+    readonly redEcho=$(/usr/bin/tput setaf 1)
+    readonly greenEcho=$(/usr/bin/tput setaf 2)
+    readonly blueEcho=$(/usr/bin/tput setaf 4)
+    readonly yellowEcho=$(/usr/bin/tput setaf 3)
+  else
+    readonly boldEcho=""
+    readonly normalEcho=""
+    readonly redEcho=""
+    readonly greenEcho=""
+    readonly blueEcho=""
+    readonly yellowEcho=""
+  fi
+  
+  tmpFolder=$(getconf DARWIN_USER_CACHE_DIR) && randString=$(/usr/bin/openssl rand -hex 5) && workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
+  
+  ssh root@jss1-1 '/usr/local/bin/getwa' >> "${workDir}/contextlist"
+  ssh root@jss2-1 '/usr/local/bin/getwa' >> "${workDir}/contextlist"
+  ssh root@jss3-1 '/usr/local/bin/getwa' >> "${workDir}/contextlist"
+  ssh root@jss4-1 '/usr/local/bin/getwa' >> "${workDir}/contextlist"
+  ssh root@jss5-1 '/usr/local/bin/getwa' >> "${workDir}/contextlist"
+  
+  while read webApp && [ ! -z "${webApp}" ]; do
+    
+    if [ $(/usr/bin/curl -sL -w "%{http_code}" "${jamfBaseURL1}/${webApp}" -o /dev/null) == "401" ]; then
+      jamfBaseURL="${jamfBaseURL1}/${webApp}"
+    elif [ $(/usr/bin/curl -sL -w "%{http_code}" "${jamfBaseURL2}/${webApp}" -o /dev/null) == "401" ]; then
+      jamfBaseURL="${jamfBaseURL2}/${webApp}"
+    elif [ $(/usr/bin/curl -sL -w "%{http_code}" "${jamfBaseURL3}/${webApp}" -o /dev/null) == "401" ]; then
+      jamfBaseURL="${jamfBaseURL3}/${webApp}"
+    elif [ $(/usr/bin/curl -sL -w "%{http_code}" "${jamfBaseURL4}/${webApp}" -o /dev/null) == "401" ]; then
+      jamfBaseURL="${jamfBaseURL4}/${webApp}"
+    elif [ $(/usr/bin/curl -sL -w "%{http_code}" "${jamfBaseURL5}/${webApp}" -o /dev/null) == "401" ]; then
+      jamfBaseURL="${jamfBaseURL5}/${webApp}"
+    fi
+    
+    /usr/bin/curl -H "Accept: application/xml" -s -o "${workDir}/${webApp}GETComputerOutput.xml" -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/${jamfComputerResource}" -X GET
+    
+    if [ $(/usr/local/bin/xmlstarlet sel -t -v '/computers/size/text()' "${workDir}/${webApp}GETComputerOutput.xml") -gt 1 ]; then
+      /usr/local/bin/xmlstarlet sel -t -v '/computers/computer/id/text()' "${workDir}/${webApp}GETComputerOutput.xml" > "${workDir}/${webApp}computersIDList"
+      while read line && [ ! -z "${line}" ]; do
+        /usr/bin/curl --silent -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/JSSResource/commandflush/computers/id/${line}/status/Failed" -X DELETE > /dev/null 2>&1
+        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' Commands: Computer ID '${blueEcho}${line}${normalEcho}' > '${yellowEcho}${jamfBaseURL}${normalEcho}'"
+      done < "${workDir}/${webApp}computersIDList"
+    else
+      echo "${yellowEcho}Warning:${normalEcho} No 'Computers' Found On '${jamfBaseURL}'"
+    fi
+    
+    /usr/bin/curl -H "Accept: application/xml" -s -o "${workDir}/${webApp}GETMobileDevicesOutput.xml" -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/${jamfMobileDevicesResource}" -X GET
+    
+    if [ $(/usr/local/bin/xmlstarlet sel -t -v '/mobile_devices/size/text()' "${workDir}/${webApp}GETMobileDevicesOutput.xml") -gt 1 ]; then
+      /usr/local/bin/xmlstarlet sel -t -v '/mobile_devices/mobile_device/id/text()' "${workDir}/${webApp}GETMobileDevicesOutput.xml" > "${workDir}/${webApp}mobiledevicesIDList"
+      while read line && [ ! -z "${line}" ]; do
+        /usr/bin/curl --silent -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/JSSResource/commandflush/mobiledevices/id/${line}/status/Failed" -X DELETE > /dev/null 2>&1
+        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' Commands: Mobile Device ID '${blueEcho}${line}${normalEcho}' > '${yellowEcho}${jamfBaseURL}${normalEcho}'"
+      done < "${workDir}/${webApp}mobiledevicesIDList"
+    else
+      echo "${yellowEcho}Warning:${normalEcho} No 'Mobile Devices' Found On '${jamfBaseURL}'"
+    fi
+    
+    rm -f "${workDir}/${webApp}GETComputerOutput.xml"
+    rm -f "${workDir}/${webApp}GETMobileDevicesOutput.xml"
+    rm -f "${workDir}/${webApp}computersIDList"
+    rm -f "${workDir}/${webApp}mobiledevicesIDList"
+    
+  done < "${workDir}/contextlist"
+  
+  rm -rf "${workDir}"
