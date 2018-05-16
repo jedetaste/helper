@@ -65,7 +65,7 @@
       /usr/local/bin/xmlstarlet sel -t -v '/computers/computer/id/text()' "${workDir}/${webApp}GETComputerOutput.xml" > "${workDir}/${webApp}computersIDList"
       while read line && [ ! -z "${line}" ]; do
         /usr/bin/curl --silent -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/JSSResource/commandflush/computers/id/${line}/status/Failed" -X DELETE > /dev/null 2>&1
-        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' Commands: Computer ID '${blueEcho}${line}${normalEcho}' > '${yellowEcho}${jamfBaseURL}${normalEcho}'"
+        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' Commands: Computer ID '${blueEcho}${line}${normalEcho}' on '${yellowEcho}${jamfBaseURL}${normalEcho}'"
       done < "${workDir}/${webApp}computersIDList"
     else
       echo "${yellowEcho}Warning:${normalEcho} No 'Computers' Found On '${jamfBaseURL}'"
@@ -77,7 +77,7 @@
       /usr/local/bin/xmlstarlet sel -t -v '/mobile_devices/mobile_device/id/text()' "${workDir}/${webApp}GETMobileDevicesOutput.xml" > "${workDir}/${webApp}mobiledevicesIDList"
       while read line && [ ! -z "${line}" ]; do
         /usr/bin/curl --silent -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/JSSResource/commandflush/mobiledevices/id/${line}/status/Failed" -X DELETE > /dev/null 2>&1
-        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' Commands: Mobile Device ID '${blueEcho}${line}${normalEcho}' > '${yellowEcho}${jamfBaseURL}${normalEcho}'"
+        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' Commands: Mobile Device ID '${blueEcho}${line}${normalEcho}' on '${yellowEcho}${jamfBaseURL}${normalEcho}'"
       done < "${workDir}/${webApp}mobiledevicesIDList"
     else
       echo "${yellowEcho}Warning:${normalEcho} No 'Mobile Devices' Found On '${jamfBaseURL}'"
