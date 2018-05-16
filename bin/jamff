@@ -68,7 +68,7 @@
         echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' commands for computer ID '${blueEcho}${line}${normalEcho}' on '${yellowEcho}${jamfBaseURL}${normalEcho}'"
       done < "${workDir}/${webApp}computersIDList"
     else
-      echo "${yellowEcho}Warning:${normalEcho} No 'Computers' Found On '${jamfBaseURL}'"
+      echo "${yellowEcho}Warning:${normalEcho} No computers found on '${jamfBaseURL}'"
     fi
     
     /usr/bin/curl -H "Accept: application/xml" -s -o "${workDir}/${webApp}GETMobileDevicesOutput.xml" -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/${jamfMobileDevicesResource}" -X GET
@@ -77,10 +77,10 @@
       /usr/local/bin/xmlstarlet sel -t -v '/mobile_devices/mobile_device/id/text()' "${workDir}/${webApp}GETMobileDevicesOutput.xml" > "${workDir}/${webApp}mobiledevicesIDList"
       while read line && [ ! -z "${line}" ]; do
         /usr/bin/curl --silent -fku "${jamfUsername}":"${jamfPassword}" "${jamfBaseURL}/JSSResource/commandflush/mobiledevices/id/${line}/status/Failed" -X DELETE > /dev/null 2>&1
-        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' commands device ID '${blueEcho}${line}${normalEcho}' on '${yellowEcho}${jamfBaseURL}${normalEcho}'"
+        echo "${boldEcho}==>${normalEcho} Flushed '${redEcho}${boldEcho}Failed${normalEcho}' commands for mobile device ID '${blueEcho}${line}${normalEcho}' on '${yellowEcho}${jamfBaseURL}${normalEcho}'"
       done < "${workDir}/${webApp}mobiledevicesIDList"
     else
-      echo "${yellowEcho}Warning:${normalEcho} No 'Mobile Devices' Found On '${jamfBaseURL}'"
+      echo "${yellowEcho}Warning:${normalEcho} No mobile devices found on '${jamfBaseURL}'"
     fi
     
     rm -f "${workDir}/${webApp}GETComputerOutput.xml"
