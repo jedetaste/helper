@@ -1,0 +1,19 @@
+#!/bin/bash
+  
+  readonly progName=$(/usr/bin/basename ${0})
+  readonly progVersion="1.0"
+  
+  if [ -z $(/usr/local/bin/currentuser) ]; then
+    if [ -d "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app" ]; then
+      /usr/bin/sudo -u $(/usr/local/bin/currentuser) /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -R -f -trusted "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app"
+      /usr/bin/sudo -u $(/usr/local/bin/currentuser) /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -R -f -trusted "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/Microsoft AU Daemon.app"
+      /usr/bin/sudo -u $(/usr/local/bin/currentuser) defaults write com.microsoft.autoupdate2 StartDaemonOnAppLaunch -bool YES
+      echo "'Microsoft AutoUpdate.app' registered successfully"
+    fi
+    else
+      echo "'Microsoft AutoUpdate.app' not found"
+      exit 1
+    fi
+  else
+    echo "No logged-in user found"
+  fi
