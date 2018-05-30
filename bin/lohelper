@@ -83,5 +83,3 @@
   echo "Hosting_Kundennummer=${lhdcustomerArg}" >> "${LOLHDPath}"
   echo "Hosting_Key=${lhdkeyArg}" >> "${LOLHDPath}"
   echo "Timeout=10" >> "${LOLHDPath}"
-  
-  
