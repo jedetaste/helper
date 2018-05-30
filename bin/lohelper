@@ -1,0 +1,87 @@
+#!/bin/bash
+
+  readonly progName=$(/usr/bin/basename ${0})
+  readonly progVersion="1.1"
+  
+  if [ ! -s "/Applications/LehrerOffice/LehrerOffice.app" ]; then
+    echo "LehrerOffice is not installed" && exit 0
+  fi
+  
+  LOINIPath="/Applications/LehrerOffice/LehrerOffice.ini"
+  LOBundlePath="/Applications/LehrerOffice/LehrerOffice.app"
+  LOVersion=$(/usr/bin/defaults read "${LOBundlePath}/Contents/Info.plist" CFBundleShortVersionString)
+  
+  if [ $# -lt 6 ] || [ $# -gt 6 ]; then
+    echo "Error: ${progName} Invalid arguments"
+    echo "  Usage"
+    echo "    ${progName} \\"
+    echo "      --lhdname \"lhdname\""
+    echo "      --lhdcustomer \"lhdcustomer\""
+    echo "      --lhdkey \"lhdkey\"" && exit
+  fi
+
+  positional=()
+  
+  while [[ $# -gt 0 ]]; do
+    key="${1}"
+    case "${key}" in
+      -n|--lhdname)
+      lhdnameArg="$2"
+      shift
+      shift
+      ;;
+      -c|--lhdcustomer)
+      lhdcustomerArg="$2"
+      shift
+      shift
+      ;;
+      -k|--lhdkey)
+      lhdkeyArg="$2"
+      shift
+      ;;
+      *)
+      positional+=("$1")
+      shift
+      ;;
+    esac
+  done
+  
+  set -- "${positional[@]}"
+  
+  LOLHDPath="/Applications/LehrerOffice/${lhdnameArg}.lhd"
+  
+  if [ -s "${LOINIPath}" ]; then
+    rm -f "${LOINIPath}"
+  fi
+  
+  echo "[application]" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "version=${LOVersion}" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "env=1" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "data=2" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "[update]" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "multi=0" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "[system]" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "open=%Programm%:${lhdnameArg}.lhd" >> "${LOINIPath}"
+  echo >> "${LOINIPath}"
+  echo "[userdlg]" >> "${LOINIPath}"
+  
+  if [ -s "${LOLHDPath}" ]; then
+    rm -f "${LOLHDPath}"
+  fi
+  
+  echo "[DB]" >> "${LOLHDPath}"
+  echo "System=Hosting" >> "${LOLHDPath}"
+  echo "Hosting_URL_1=https://www.lehrerofficeweb.ch/services/hosting/hosting_lhd.php" >> "${LOLHDPath}"
+  echo "Hosting_URL_2=https://www.lehreroffice.net/services/hosting/hosting_lhd.php" >> "${LOLHDPath}"
+  echo "Hosting_Kundennummer=${lhdcustomerArg}" >> "${LOLHDPath}"
+  echo "Hosting_Key=${lhdkeyArg}" >> "${LOLHDPath}"
+  echo "Timeout=10" >> "${LOLHDPath}"
+  
+  
