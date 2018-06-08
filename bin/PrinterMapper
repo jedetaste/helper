@@ -20,7 +20,8 @@
     -p "${argQueueName}" \
     -v "lpd://${argURI}/" \
     -P "/Library/Printers/PPDs/Contents/Resources/${argModel}.gz" \
-    -o printer-is-shared=false \
+    -o "printer-is-shared=false" \
+    -o "media=A4" \
     -L "${argLocation}"
   
   /usr/sbin/cupsenable "${argQueueName}" -E && /usr/sbin/cupsaccept "${argQueueName}"
