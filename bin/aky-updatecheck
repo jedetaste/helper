@@ -1,7 +1,7 @@
 #!/bin/bash
   
   readonly progName=$(/usr/bin/basename ${0})
-  readonly progVersion="1.1"
+  readonly progVersion="1.2"
   
   if [ -t 1 ]; then
     readonly boldEcho=$(/usr/bin/tput bold)
@@ -23,11 +23,16 @@
     echo "${redEcho}Error:${normalEcho} Please install 'aky Patch Management', download-helper was not found!" && exit 1
   elif [ ! -s "/usr/local/bin/jq" ]; then
     echo "${redEcho}Error:${normalEcho} Please install 'jq' command-line JSON processor (https://stedolan.github.io/jq/)!" && exit 1
+  elif [ ! -s "/usr/local/bin/appcast-checkpoint" ]; then
+    echo "${redEcho}Error:${normalEcho} Please install 'appcast-checkpoint' helper!" && exit 1
   fi
   
   tmpFolder=$(getconf DARWIN_USER_CACHE_DIR)
   randString=$(/usr/bin/openssl rand -hex 5)
   workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
+  
+  echo "${yellowEcho}Warning:${normalEcho} Working directory is '${workDir}', could be quite large!"
+  echo
   
   cd "${workDir}" && /usr/bin/git clone --quiet "https://github.com/jedetaste/aky.git"
   
@@ -36,20 +41,35 @@
     recipeName=$(/usr/local/bin/jq -r '.[].id' "${json}")
     expectedChecksum=$(/usr/local/bin/jq -r '.[].sha256' "${json}")
     downloadURI=$(/usr/local/bin/jq -r '.[].download' "${json}")
+    appcastURI=$(/usr/local/bin/jq -r '.[].appcast.url' "${json}")
+    expectedAppcastCheckpoint=$(/usr/local/bin/jq -r '.[].appcast.checkpoint' "${json}")
     
-    downloadedFile=$(/usr/local/bin/download-helper "${downloadURI}")
-    
-    computedChecksum=$(/usr/bin/shasum -a 256 -p "${downloadedFile}" | cut -d' ' -f1)
-    
-    if [ "${expectedChecksum}" == "${computedChecksum}" ]; then
-      echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${greenEcho}Valid${normalEcho}${boldEcho}'${normalEcho}"
-    elif [ "${expectedChecksum}" == "null" ]; then
-      echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${yellowEcho}Checksum Not Provided${normalEcho}${boldEcho}'${normalEcho}"
-    elif [ "${expectedChecksum}" != "${computedChecksum}" ]; then
-      echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${redEcho}Outdated${normalEcho}${boldEcho}'${normalEcho}"
+    if [ "${appcastURI}" != "null" ]; then
+      
+      computedAppcastCheckpoint=$(/usr/local/bin/appcast-checkpoint "${appcastURI}")
+      
+      if [ "${expectedAppcastCheckpoint}" == "${computedAppcastCheckpoint}" ]; then
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${greenEcho}Valid${normalEcho}${boldEcho}'${normalEcho}"
+      elif [ "${expectedAppcastCheckpoint}" != "${computedAppcastCheckpoint}" ]; then
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${redEcho}Outdated${normalEcho}${boldEcho}'${normalEcho}"
+      fi
+        
+    else
+      
+      downloadedFile=$(/usr/local/bin/download-helper "${downloadURI}")
+      computedChecksum=$(/usr/bin/shasum -a 256 -p "${downloadedFile}" | cut -d' ' -f1)
+      
+      if [ "${expectedChecksum}" == "${computedChecksum}" ]; then
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${greenEcho}Valid${normalEcho}${boldEcho}'${normalEcho}"
+      elif [ "${expectedChecksum}" == "null" ]; then
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${yellowEcho}Checksum Not Provided${normalEcho}${boldEcho}'${normalEcho}"
+      elif [ "${expectedChecksum}" != "${computedChecksum}" ]; then
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${redEcho}Outdated${normalEcho}${boldEcho}'${normalEcho}"
+      fi
+      
+      rm -rf "${downloadFolder}"
+      
     fi
-    
-    rm -rf "${downloadFolder}"
     
   done
   
