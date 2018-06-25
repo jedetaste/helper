@@ -46,9 +46,9 @@
       computedAppcastCheckpoint=$(/usr/local/bin/appcast-checkpoint "${appcastURI}")
       
       if [ "${expectedAppcastCheckpoint}" == "${computedAppcastCheckpoint}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${greenEcho}Valid${normalEcho}${boldEcho}'${normalEcho}"
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${greenEcho}valid${normalEcho}${boldEcho}${normalEcho}"
       elif [ "${expectedAppcastCheckpoint}" != "${computedAppcastCheckpoint}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${redEcho}Outdated${normalEcho}${boldEcho}'${normalEcho}"
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably outdated${normalEcho}${boldEcho}${normalEcho}"
       fi
         
     else
@@ -57,11 +57,11 @@
       computedChecksum=$(/usr/bin/shasum -a 256 -p "${downloadedFile}" | cut -d' ' -f1)
       
       if [ "${expectedChecksum}" == "${computedChecksum}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${greenEcho}Valid${normalEcho}${boldEcho}'${normalEcho}"
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${yellowEcho}valid but no appcast provided${normalEcho}${boldEcho}${normalEcho}"
       elif [ "${expectedChecksum}" == "null" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${yellowEcho}Checksum Not Provided${normalEcho}${boldEcho}'${normalEcho}"
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' has ${yellowEcho}no checksum or appcast provided${normalEcho}${boldEcho}${normalEcho}"
       elif [ "${expectedChecksum}" != "${computedChecksum}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}': '${redEcho}Outdated${normalEcho}${boldEcho}'${normalEcho}"
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably Outdated${normalEcho}${boldEcho}${normalEcho}"
       fi
       
       rm -rf "${downloadFolder}"
