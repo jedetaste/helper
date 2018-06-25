@@ -31,9 +31,6 @@
   randString=$(/usr/bin/openssl rand -hex 5)
   workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
   
-  echo "${yellowEcho}Warning:${normalEcho} Working directory is '${workDir}', could be quite large!"
-  echo
-  
   cd "${workDir}" && /usr/bin/git clone --quiet "https://github.com/jedetaste/aky.git"
   
   for json in "${workDir}"/aky/*.json; do
