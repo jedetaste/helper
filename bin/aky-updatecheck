@@ -48,7 +48,7 @@
       if [ "${expectedAppcastCheckpoint}" == "${computedAppcastCheckpoint}" ]; then
         echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${greenEcho}valid${normalEcho}${boldEcho}${normalEcho}"
       elif [ "${expectedAppcastCheckpoint}" != "${computedAppcastCheckpoint}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably outdated${normalEcho}${boldEcho}${normalEcho}"
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably outdated${normalEcho}${boldEcho}${normalEcho} (appcast mismatch)"
       fi
         
     else
@@ -61,7 +61,7 @@
       elif [ "${expectedChecksum}" == "null" ]; then
         echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' has ${yellowEcho}no checksum or appcast provided${normalEcho}${boldEcho}${normalEcho}"
       elif [ "${expectedChecksum}" != "${computedChecksum}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably Outdated${normalEcho}${boldEcho}${normalEcho}"
+        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably outdated${normalEcho}${boldEcho}${normalEcho} (checksum mismatch)"
       fi
       
       rm -rf "${downloadFolder}"
