@@ -5,7 +5,7 @@
 	
 	readonly sourceURI="https://raw.githubusercontent.com/jedetaste/kisp/master"
 	
-	tmpFolder=$(getconf DARWIN_USER_CACHE_DIR) && randString=$(/usr/bin/openssl rand -hex 5) && tmpDir="${tmpFolder}${randString}" && /bin/mkdir -p "${tmpDir}"
+	tmpFolder=$(getconf DARWIN_USER_TEMP_DIR) && randString=$(/usr/bin/openssl rand -hex 5) && tmpDir="${tmpFolder}${randString}" && /bin/mkdir -p "${tmpDir}"
 	
 	if [ -s "/usr/local/bin/mcxToProfile" ]; then
 		rm -f "/usr/local/bin/mcxToProfile"
