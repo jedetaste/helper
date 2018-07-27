@@ -12,7 +12,7 @@
   LOVersion=$(/usr/bin/defaults read "${LOBundlePath}/Contents/Info.plist" CFBundleShortVersionString)
   
   if [ $# -lt 6 ] || [ $# -gt 6 ]; then
-    echo "Error: ${progName} Invalid arguments"
+    echo "Error: Invalid arguments"
     echo "  Usage"
     echo "    ${progName} \\"
     echo "      --lhdname \"lhdname\""
