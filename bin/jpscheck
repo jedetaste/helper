@@ -4,7 +4,7 @@
   readonly progVersion="1.0"
   
   function logging() {
-    jpscheckLogFile="/var/log/jamfprocheck.log"
+    jpscheckLogFile="/var/log/jpscheck.log"
     echo $(/bin/date) "==> $*"
   }
   
@@ -35,6 +35,6 @@
     fi
 
   else
-    logging "jpscheck could not be performed, computer seems to be offline"
+    logging "${progName} could not be performed, computer seems to be offline"
     exit 0
   fi
