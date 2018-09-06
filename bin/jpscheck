@@ -5,7 +5,7 @@
   
   function logging() {
     jpscheckLogFile="/var/log/jpscheck.log"
-    echo $(/bin/date) "==> $*"
+    echo $(/bin/date) "==> $*" >> "${jpscheckLogFile}"
   }
   
   logging "${progName} v${progVersion}"
