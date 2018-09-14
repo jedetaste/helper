@@ -1,0 +1,32 @@
+#!/bin/bash
+
+	readonly progName=$(/usr/bin/basename ${0})
+	readonly progVersion="1.0"
+	
+	readonly caskName="${1}"
+	
+	if [ -t 1 ]; then
+		readonly boldEcho=$(/usr/bin/tput bold)
+		readonly normalEcho=$(/usr/bin/tput sgr0)
+		readonly redEcho=$(/usr/bin/tput setaf 1)
+		readonly greenEcho=$(/usr/bin/tput setaf 2)
+		readonly blueEcho=$(/usr/bin/tput setaf 4)
+		readonly yellowEcho=$(/usr/bin/tput setaf 3)
+	else
+		readonly boldEcho=""
+		readonly normalEcho=""
+		readonly redEcho=""
+		readonly greenEcho=""
+		readonly blueEcho=""
+		readonly yellowEcho=""
+	fi
+
+	if [ -z "${1}" ]; then
+		echo "Error: Invalid argument" && exit 1
+	fi
+	
+	echo "${boldEcho}cask: ${normalEcho}${caskName}
+	${boldEcho}version: ${normalEcho}$(/usr/local/bin/brew cask _stanza version ${caskName})
+	${boldEcho}url: ${normalEcho}$(/usr/local/bin/brew cask _stanza url ${caskName})
+	${boldEcho}sha1265: ${normalEcho}$(/usr/local/bin/brew cask _stanza sha256 ${caskName})
+	${boldEcho}appcast: ${normalEcho}$(/usr/local/bin/brew cask _stanza appcast ${caskName})" | column -t
