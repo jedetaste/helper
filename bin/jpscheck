@@ -25,7 +25,7 @@
       logging "Jamf Pro binary seems up-to-date"
     fi
 
-    if [ $(/bin/date -j -v -20M +%s) -gt $(/usr/bin/stat -f "%m%t %Y" $jamfProLogFile) ]; then
+    if [ $(/bin/date -j -v -1H +%s) -gt $(/usr/bin/stat -f "%m%t %Y" $jamfProLogFile) ]; then
       logging "It seems, that the Jamf Pro binary did not run the last 20 minutes"
       /usr/bin/killall jamf && sleep 5 && /usr/local/bin/jamf policy
       exit 0
