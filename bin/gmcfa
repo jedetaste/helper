@@ -25,11 +25,11 @@
 		echo "Error: Invalid argument" && exit 1
 	fi
 	
-	appcastCheckpoint=$(/usr/local/bin/brew cask _stanza appcast ${caskName}) 2>/dev/null
+	appcastCheckpoint=$(/usr/local/bin/brew cask _stanza appcast ${caskName}) 2>&1 >/dev/null
 	
 	echo "${boldEcho}cask: ${normalEcho}${caskName}
 	${boldEcho}version: ${normalEcho}$(/usr/local/bin/brew cask _stanza version ${caskName})
 	${boldEcho}url: ${normalEcho}$(/usr/local/bin/brew cask _stanza url ${caskName})
-	${boldEcho}sha1265: ${normalEcho}$(/usr/local/bin/brew cask _stanza sha256 ${caskName})
+	${boldEcho}sha265: ${normalEcho}$(/usr/local/bin/brew cask _stanza sha256 ${caskName})
 	${boldEcho}appcast: ${normalEcho}$(/usr/local/bin/brew cask _stanza appcast ${caskName})
 	${boldEcho}checkpoint: ${normalEcho}$(/usr/local/bin/appcast-checkpoint ${appcastCheckpoint})" | column -t
