@@ -4,7 +4,7 @@
   readonly progVersion="1.1"
   
   if [ ! -s "/Applications/LehrerOffice/LehrerOffice.app" ]; then
-    echo "LehrerOffice is not installed" && exit 0
+    echo "Warning: LehrerOffice is not installed" && exit 0
   fi
   
   LOINIPath="/Applications/LehrerOffice/LehrerOffice.ini"
