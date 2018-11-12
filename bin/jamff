@@ -3,6 +3,47 @@
   readonly prog_name=$(/usr/bin/basename ${0})
   readonly prog_version="1.0"
   
+  if [ $# -lt 6 ] || [ $# -gt 6 ]; then
+    echo "Error: Invalid arguments"
+    echo "  Usage"
+    echo "    ${prog_name} \\"
+    echo "      --address \"https://jps.example.com:8443\""
+    echo "      --username \"username\""
+    echo "      --password \"password\"" && exit 1
+  fi
+  
+  positional=()
+  
+  while [[ $# -gt 0 ]]; do
+    key="${1}"
+    case "${key}" in
+      -a|--address)
+      address="$2"
+      shift
+      shift
+      ;;
+      -u|--username)
+      username="$2"
+      shift
+      shift
+      ;;
+      -p|--password)
+      password="$2"
+      shift
+      ;;
+      *)
+      positional+=("$1")
+      shift
+      ;;
+    esac
+  done
+  
+  set -- "${positional[@]}"
+  
+  if [ "$(/usr/bin/curl -sL -w "%{http_code}" "${address}" -o /dev/null)" != "200" ]; then
+    echo "Error: '${address}' seems not be a Jamf Pro server" && exit 1
+  fi
+  
   sgr_color() {
     
     blk=$(tput setaf 0) # Black
@@ -40,34 +81,6 @@
   
   sgr_color
   sgr_attributes
-  
-  positional=()
-  
-  while [[ $# -gt 0 ]]; do
-    key="${1}"
-    case "${key}" in
-      -a|--address)
-      address="$2"
-      shift
-      shift
-      ;;
-      -u|--username)
-      username="$2"
-      shift
-      shift
-      ;;
-      -p|--password)
-      password="$2"
-      shift
-      ;;
-      *)
-      positional+=("$1")
-      shift
-      ;;
-    esac
-  done
-  
-  set -- "${positional[@]}"
   
   jamf_computers_resource="${address}/JSSResource/computers"
   jamf_devices_resource="${address}/JSSResource/mobiledevices"
