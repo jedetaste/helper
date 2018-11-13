@@ -1,6 +1,6 @@
 #!/bin/bash
   
-  [ ! "${1}" ] && echo "Error: Please provide URI" exit 1
+  [ ! "${1}" ] && echo "Error: Please provide URI" && exit 1
   
   /usr/bin/curl \
     --silent \
