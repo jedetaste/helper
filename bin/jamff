@@ -40,9 +40,9 @@
   
   set -- "${positional[@]}"
   
-  if [ "$(/usr/bin/curl -sL -w "%{http_code}" "${address}" -o /dev/null)" != "200" ]; then
-    echo "Error: '${address}' seems not be a Jamf Pro server" && exit 1
-  fi
+  #if [ "$(/usr/bin/curl -sL -w "%{http_code}" "${address}" -o /dev/null)" != "200" ]; then
+  #  echo "Error: '${address}' seems not be a Jamf Pro server" && exit 1
+  #fi
   
   sgr_color() {
     
