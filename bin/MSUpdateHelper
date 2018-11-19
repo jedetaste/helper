@@ -67,7 +67,7 @@
   }
   
   perform_update() {
-    "${cmd_prefix}/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" --install --apps "${1}" "${2}"
+    ${cmd_prefix}"/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" --install --apps "${1}" "${2}"
   }
   
   check_mau_install
