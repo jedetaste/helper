@@ -14,7 +14,7 @@
   path_onenote="/Applications/Microsoft OneNote.app"
   path_companyportal="/Applications/Company Portal.app"
   
-  check_mau_install() {
+  function check_mau_install() {
     if [ ! -e "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" ]; then
       echo "==> MAU 3.18 or later is required!" && exit 1
     fi
@@ -48,7 +48,7 @@
     
   }
   
-  determine_login_state() {
+  function determine_login_state() {
     
     currentuser=$(/usr/local/bin/currentuser)
     
@@ -62,11 +62,11 @@
     
   }
   
-  register_app() {
+  function register_app() {
     $(${cmd_prefix}/usr/bin/defaults write com.microsoft.autoupdate2 Applications -dict-add "${1}" "{ 'Application ID' = '${2}'; LCID = 1033 ; }")
   }
   
-  perform_update() {
+  function perform_update() {
     ${cmd_prefix}"/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" --install --apps "${1}" "${2}"
   }
   
