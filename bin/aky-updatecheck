@@ -106,7 +106,7 @@
       
       download_dir=$(/usr/local/bin/tmpDir)
       
-      cd "${download_dir}" && /usr/local/bin/aria2c "${download}"
+      cd "${download_dir}" && /usr/local/bin/aria2c "${parse_download}"
       
       get_dump_file_meta4="$(/usr/bin/find "${download_dir}" -name "*meta4*")" && get_dump_file_meta4_extension="${get_dump_file_meta4##*.}"
       
