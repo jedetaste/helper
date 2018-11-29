@@ -21,6 +21,7 @@
 	
 	bld=$(/usr/bin/tput bold)
 	clr=$(/usr/bin/tput sgr0)
+	uln=$(/usr/bin/tput smul)
 	
 	cask="${1}"
 
@@ -28,17 +29,24 @@
 		echo "Error: Invalid argument" && exit 1
 	fi
 	
-	appcast_checkpoint=$(/usr/local/bin/brew cask _stanza appcast ${cask})
+	app=$(/usr/local/bin/brew cask _stanza app ${cask})
 	version=$(/usr/local/bin/brew cask _stanza version ${cask})
 	url=$(/usr/local/bin/brew cask _stanza url ${cask})
 	sha265=$(/usr/local/bin/brew cask _stanza sha256 ${cask})
 	appcast=$(/usr/local/bin/brew cask _stanza appcast ${cask})
+	appcast_checkpoint=$(/usr/local/bin/brew cask _stanza appcast ${cask})
+	homepage=$(/usr/local/bin/brew cask _stanza homepage ${cask})
 	
 	if [ ! -z "${appcast}" ]; then
 		checkpoint=$(/usr/local/bin/appcast-checkpoint ${appcast_checkpoint})
 	fi
 	
 	console "${bld}cask${clr}:        ${cask}"
+	
+	if [ ! -z "${app}" ]; then
+		console "${bld}app${clr}:         ${app}"
+	fi
+	
 	console "${bld}version${clr}:     ${version}"
 	console "${bld}url${clr}:         ${url}"
 	console "${bld}sha265${clr}:      ${sha265}"
@@ -47,3 +55,5 @@
 		console "${bld}appcast${clr}:     ${appcast}"
 		console "${bld}checkpoint${clr}:  ${checkpoint}"
 	fi
+	
+	console "${bld}homepage${clr}:    ${uln}${homepage}${clr}"
