@@ -1,73 +1,143 @@
 #!/bin/bash
   
-  readonly progName=$(/usr/bin/basename ${0})
-  readonly progVersion="1.2"
+  prog_name=$(/usr/bin/basename ${0})
+  prog_version="2.0"
   
-  if [ -t 1 ]; then
-    readonly boldEcho=$(/usr/bin/tput bold)
-    readonly normalEcho=$(/usr/bin/tput sgr0)
-    readonly redEcho=$(/usr/bin/tput setaf 1)
-    readonly greenEcho=$(/usr/bin/tput setaf 2)
-    readonly blueEcho=$(/usr/bin/tput setaf 4)
-    readonly yellowEcho=$(/usr/bin/tput setaf 3)
-  else
-    readonly boldEcho=""
-    readonly normalEcho=""
-    readonly redEcho=""
-    readonly greenEcho=""
-    readonly blueEcho=""
-    readonly yellowEcho=""
-  fi
+  logging_standard() {
+    
+    log_file="/var/log/${prog_name}.log"
+    
+    [ ! -s "${log_file}" ] && touch "${log_file}"
+    
+    exec 3>&1 1>>${log_file} 2>&1
+    
+  }
   
-  if [ ! -s "/usr/local/aky/download-helper" ]; then
-    echo "${redEcho}Error:${normalEcho} Please install 'aky Patch Management', download-helper was not found!" && exit 1
-  elif [ ! -s "/usr/local/bin/jq" ]; then
-    echo "${redEcho}Error:${normalEcho} Please install 'jq' command-line JSON processor (https://stedolan.github.io/jq/)!" && exit 1
+  console() {
+    printf "%s\n" "$*" 1>&3
+  }
+  
+  sgr_color() {
+    
+    blk=$(/usr/bin/tput setaf 0)   # Black
+    red=$(/usr/bin/tput setaf 1)   # Red
+    grn=$(/usr/bin/tput setaf 2)   # Green
+    yel=$(/usr/bin/tput setaf 3)   # Yellow
+    blu=$(/usr/bin/tput setaf 4)   # Blue
+    mag=$(/usr/bin/tput setaf 5)   # Magenta
+    cya=$(/usr/bin/tput setaf 6)   # Cyan
+    whi=$(/usr/bin/tput setaf 7)   # White
+    def=$'\e[39m'                  # Default foreground color
+  
+    clr=$(/usr/bin/tput sgr0)      # Clear sgr
+    
+  }
+  
+  sgr_bgcolor() {
+    
+    bgblk=$(/usr/bin/tput setab 0) # Black
+    bgred=$(/usr/bin/tput setab 1) # Red
+    bggrn=$(/usr/bin/tput setab 2) # Green
+    bgyel=$(/usr/bin/tput setab 3) # Yellow
+    bgblu=$(/usr/bin/tput setab 4) # Blue
+    bgmag=$(/usr/bin/tput setab 5) # Magenta
+    bgcya=$(/usr/bin/tput setab 6) # Cyan
+    bgwhi=$(/usr/bin/tput setab 7) # White
+    bgdef=$'\e[49m'                # Default foreground color
+  
+    clr=$(/usr/bin/tput sgr0)      # Clear sgr
+    
+  }
+  
+  sgr_attributes() {
+    
+    bld=$(/usr/bin/tput bold)      # Bold
+    dim=$(/usr/bin/tput dim)       # Dim
+    uln=$(/usr/bin/tput smul)      # Underline
+    bnk=$(/usr/bin/tput blink)     # Blink
+    rev=$(/usr/bin/tput rev)       # Reverse
+    sto=$(/usr/bin/tput smso)      # Standout
+  
+    nobld=$'\e[22m'                # Deactivate Bold
+    nouln=$(/usr/bin/tput rmul)    # Deactivate Underline
+    nobnk=$'\e[25m'                # Deactivate Blink
+    norev=$'\e[27m'                # Deactivate Reverse
+    nosto=$(/usr/bin/tput rmso)    # Deactivate Standout
+  
+    clr=$(/usr/bin/tput sgr0)      # Clear sgr
+    
+  }
+  
+  logging_standard
+  
+  sgr_color
+  sgr_bgcolor
+  sgr_attributes
+  
+  if [ ! -s "/usr/local/bin/jq" ]; then
+    console "Error: Please install 'jq' command-line JSON processor (https://stedolan.github.io/jq/)!" && exit 1
   elif [ ! -s "/usr/local/bin/appcast-checkpoint" ]; then
-    echo "${redEcho}Error:${normalEcho} Please install 'appcast-checkpoint' helper!" && exit 1
+    console "Error: Please install 'appcast-checkpoint' helper!" && exit 1
   fi
   
-  tmpFolder=$(getconf DARWIN_USER_CACHE_DIR)
-  randString=$(/usr/bin/openssl rand -hex 5)
-  workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
+  tmpDir=$(/usr/local/bin/tmpDir)
   
-  cd "${workDir}" && /usr/bin/git clone --quiet "https://github.com/jedetaste/aky.git"
+  cd "${tmpDir}" && /usr/bin/git clone --quiet "https://github.com/jedetaste/aky.git"
   
-  for json in "${workDir}"/aky/*.json; do
+  for json in "${tmpDir}"/aky/*.json; do
     
-    recipeName=$(/usr/local/bin/jq -r '.[].id' "${json}")
-    expectedChecksum=$(/usr/local/bin/jq -r '.[].sha256' "${json}")
-    downloadURI=$(/usr/local/bin/jq -r '.[].download' "${json}")
-    appcastURI=$(/usr/local/bin/jq -r '.[].appcast.url' "${json}")
-    expectedAppcastCheckpoint=$(/usr/local/bin/jq -r '.[].appcast.checkpoint' "${json}")
+    parse_id=$(/usr/local/bin/jq -r '.[].id' "${json}")
+    parse_checksum=$(/usr/local/bin/jq -r '.[].sha256' "${json}")
+    parse_download=$(/usr/local/bin/jq -r '.[].download' "${json}")
+    parse_appcast_url=$(/usr/local/bin/jq -r '.[].appcast.url' "${json}")
+    parse_appcast_checkpoint=$(/usr/local/bin/jq -r '.[].appcast.checkpoint' "${json}")
     
-    if [ "${appcastURI}" != "null" ]; then
+    if [ "${parse_appcast_url}" != "null" ]; then
       
-      computedAppcastCheckpoint=$(/usr/local/bin/appcast-checkpoint "${appcastURI}")
+      computed_appcast_checkpoint=$(/usr/local/bin/appcast-checkpoint "${parse_appcast_url}")
       
-      if [ "${expectedAppcastCheckpoint}" == "${computedAppcastCheckpoint}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${greenEcho}valid${normalEcho}${boldEcho}${normalEcho}"
-      elif [ "${expectedAppcastCheckpoint}" != "${computedAppcastCheckpoint}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably outdated${normalEcho}${boldEcho}${normalEcho} (appcast mismatch)"
+      if [ "${parse_appcast_checkpoint}" == "${computed_appcast_checkpoint}" ]; then
+        console "==> ${grn}Recipe '${parse_id}' is valid${clr}"
+      elif [ "${parse_appcast_checkpoint}" != "${computed_appcast_checkpoint}" ]; then
+        console "==> ${yel}Recipe '${parse_id}' is probably outdated (appcast mismatch)${clr}"
       fi
         
     else
       
-      downloadedFile=$(/usr/local/bin/download-helper "${downloadURI}")
-      computedChecksum=$(/usr/bin/shasum -a 256 -p "${downloadedFile}" | cut -d' ' -f1)
+      download_dir=$(/usr/local/bin/tmpDir)
       
-      if [ "${expectedChecksum}" == "${computedChecksum}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${yellowEcho}valid but no appcast provided${normalEcho}${boldEcho}${normalEcho}"
-      elif [ "${expectedChecksum}" == "null" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' has ${yellowEcho}no checksum or appcast provided${normalEcho}${boldEcho}${normalEcho}"
-      elif [ "${expectedChecksum}" != "${computedChecksum}" ]; then
-        echo "==> ${boldEcho}Recipe '${blueEcho}${recipeName}${normalEcho}${boldEcho}' is ${redEcho}probably outdated${normalEcho}${boldEcho}${normalEcho} (checksum mismatch)"
+      cd "${download_dir}" && /usr/local/bin/aria2c "${download}"
+      
+      get_dump_file_meta4="$(/usr/bin/find "${download_dir}" -name "*meta4*")" && get_dump_file_meta4_extension="${get_dump_file_meta4##*.}"
+      
+      if [ "${get_dump_file_meta4_extension}" == "meta4" ]; then
+        rm -rf "${get_dump_file_meta4}"
       fi
       
-      rm -rf "${downloadFolder}"
+      get_dump_file_sig="$(/usr/bin/find "${download_dir}" -name "*sig*")" && get_dump_file_sig_extension="${get_dump_file_sig##*.}"
+      
+      if [ "${get_dump_file_sig_extension}" == "sig" ]; then
+        rm -rf "${get_dump_file_sig}"
+      fi
+      
+      get_download="$(/usr/bin/find "${download_dir}" -name "*.*")"
+      get_download_filename="$(/usr/bin/basename "${get_download}")"
+      get_download_filename_extension="${get_download_filename##*.}"
+      get_download_filename_basename="${get_download_filename%.*}"
+      
+      computed_checksum=$(/usr/bin/shasum -a 256 -p "${get_download}" | cut -d' ' -f1)
+      
+      if [ "${parse_checksum}" == "${computed_checksum}" ]; then
+        console "==> ${yel}Recipe '${parse_id}' is valid but no appcast provided${clr}"
+      elif [ "${parse_checksum}" == "null" ]; then
+        console "==> ${yel}Recipe '${parse_id}' has no checksum or appcast provided${clr}"
+      elif [ "${parse_checksum}" != "${computed_checksum}" ]; then
+        console "==> ${red}Recipe '${parse_id}' is probably outdated (checksum mismatch)${clr}"
+      fi
       
     fi
     
   done
   
-  rm -rf "${workDir}" && exit 1
+  rm -rf "${tmpDir}"
+  rm -rf "${download_dir}"
