@@ -1,35 +1,49 @@
 #!/bin/bash
-
-	readonly progName=$(/usr/bin/basename ${0})
-	readonly progVersion="1.0"
 	
-	readonly caskName="${1}"
+	prog_name=$(/usr/bin/basename ${0})
+	prog_version="2.0"
 	
-	if [ -t 1 ]; then
-		readonly boldEcho=$(/usr/bin/tput bold)
-		readonly normalEcho=$(/usr/bin/tput sgr0)
-		readonly redEcho=$(/usr/bin/tput setaf 1)
-		readonly greenEcho=$(/usr/bin/tput setaf 2)
-		readonly blueEcho=$(/usr/bin/tput setaf 4)
-		readonly yellowEcho=$(/usr/bin/tput setaf 3)
-	else
-		readonly boldEcho=""
-		readonly normalEcho=""
-		readonly redEcho=""
-		readonly greenEcho=""
-		readonly blueEcho=""
-		readonly yellowEcho=""
-	fi
+	logging_standard() {
+		
+		log_file="/tmp/${prog_name}.log"
+		
+		[ ! -s "${log_file}" ] && touch "${log_file}"
+		
+		exec 3>&1 1>>${log_file} 2>&1
+		
+	}
+	
+	console() {
+		printf "%s\n" "$*" 1>&3
+	}
+	
+	logging_standard
+	
+	bld=$(/usr/bin/tput bold)
+	clr=$(/usr/bin/tput sgr0)
+	
+	cask="${1}"
 
 	if [ -z "${1}" ]; then
 		echo "Error: Invalid argument" && exit 1
 	fi
 	
-	appcastCheckpoint=$(/usr/local/bin/brew cask _stanza appcast ${caskName}) 2>&1 >/dev/null
+	appcast_checkpoint=$(/usr/local/bin/brew cask _stanza appcast ${cask})
+	version=$(/usr/local/bin/brew cask _stanza version ${cask})
+	url=$(/usr/local/bin/brew cask _stanza url ${cask})
+	sha265=$(/usr/local/bin/brew cask _stanza sha256 ${cask})
+	appcast=$(/usr/local/bin/brew cask _stanza appcast ${cask})
 	
-	echo "${boldEcho}cask: ${normalEcho}${caskName}
-	${boldEcho}version: ${normalEcho}$(/usr/local/bin/brew cask _stanza version ${caskName})
-	${boldEcho}url: ${normalEcho}$(/usr/local/bin/brew cask _stanza url ${caskName})
-	${boldEcho}sha265: ${normalEcho}$(/usr/local/bin/brew cask _stanza sha256 ${caskName})
-	${boldEcho}appcast: ${normalEcho}$(/usr/local/bin/brew cask _stanza appcast ${caskName})
-	${boldEcho}checkpoint: ${normalEcho}$(/usr/local/bin/appcast-checkpoint ${appcastCheckpoint})" | column -t
+	if [ ! -z "${appcast}" ]; then
+		checkpoint=$(/usr/local/bin/appcast-checkpoint ${appcast_checkpoint})
+	fi
+	
+	console "${bld}cask${clr}:        ${cask}"
+	console "${bld}version${clr}:     ${version}"
+	console "${bld}url${clr}:         ${url}"
+	console "${bld}sha265${clr}:      ${sha265}"
+	
+	if [ ! -z "${appcast}" ]; then
+		console "${bld}appcast${clr}:     ${appcast}"
+		console "${bld}checkpoint${clr}:  ${checkpoint}"
+	fi
