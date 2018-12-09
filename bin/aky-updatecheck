@@ -99,7 +99,7 @@
       if [ "${parse_appcast_checkpoint}" == "${computed_appcast_checkpoint}" ]; then
         console "==> ${grn}Recipe '${parse_id}' is valid${clr}"
       elif [ "${parse_appcast_checkpoint}" != "${computed_appcast_checkpoint}" ]; then
-        console "==> ${yel}Recipe '${parse_id}' is probably outdated (appcast mismatch)${clr}"
+        console "==> ${red}Recipe '${parse_id}' is probably outdated (appcast mismatch)${clr}"
       fi
         
     else
