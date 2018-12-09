@@ -29,10 +29,14 @@
   sto=$(/usr/bin/tput smso)
   clr=$(/usr/bin/tput sgr0)
   
-  cask="${1}"
-
   if [ -z "${1}" ]; then
     echo "Error: Invalid argument" && exit 1
+  fi
+  
+  cask="${1}"
+  
+  if [ "$(/usr/bin/curl -sL -w "%{http_code}" "https://raw.githubusercontent.com/Homebrew/homebrew-cask/master/Casks/${cask}.rb" -o /dev/null)" != "200" ]; then
+    console "Error: '${cask}' is not a valid cask" && exit 1
   fi
   
   app=$(/usr/local/bin/brew cask _stanza app ${cask})
