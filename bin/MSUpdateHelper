@@ -13,6 +13,7 @@
   path_outlook="/Applications/Microsoft Outlook.app"
   path_onenote="/Applications/Microsoft OneNote.app"
   path_companyportal="/Applications/Company Portal.app"
+  path_mau="/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app"
   
   function check_mau_install() {
     if [ ! -e "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" ]; then
@@ -75,6 +76,9 @@
   check_app_install
   
   determine_login_state
+  
+  echo "==> Register 'Microsoft AutoUpdate.app' (MSau03)..."
+  register_app "${path_mau}" "MSau03"
   
   if [ "${update_word}" == "true" ]; then
     echo "==> Update 'Microsoft Word.app' (MSWD15)..."
