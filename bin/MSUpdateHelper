@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
   
   update_word="true"
   update_excel="true"
