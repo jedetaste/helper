@@ -35,7 +35,10 @@
   
   cask="${1}"
   
-  if [ "$(/usr/bin/curl -sL -w "%{http_code}" "https://raw.githubusercontent.com/Homebrew/homebrew-cask/master/Casks/${cask}.rb" -o /dev/null)" != "200" ]; then
+  check_httpcode_cask=$(/usr/bin/curl -sL -w "%{http_code}" "https://raw.githubusercontent.com/Homebrew/homebrew-cask/master/Casks/${cask}.rb" -o /dev/null)
+  check_httpcode_cask_drive=$(/usr/bin/curl -sL -w "%{http_code}" "https://raw.githubusercontent.com/Homebrew/homebrew-cask-drivers/master/Casks/${cask}.rb" -o /dev/null)
+  
+  if [ ${check_httpcode_cask} != 200 ] && [ ${check_httpcode_cask} != 200 ]; then
     console "Error: '${cask}' is not a valid cask" && exit 1
   fi
   
