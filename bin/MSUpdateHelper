@@ -140,7 +140,7 @@
       echo "==> 'Company Portal.app' (IMCP01) is not installed"
     fi
     
-  elif [ ${version_minor} -gt 16 ]; then
+  else
     
     echo "==> Run Update for Microsoft Office 2016"
     
