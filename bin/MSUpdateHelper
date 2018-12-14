@@ -80,50 +80,116 @@
   echo "==> Register 'Microsoft AutoUpdate.app' (MSau03)..."
   register_app "${path_mau}" "MSau03"
   
-  if [ "${update_word}" == "true" ]; then
-    echo "==> Update 'Microsoft Word.app' (MSWD15)..."
-    register_app "${path_word}" "MSWD15"
-    perform_update "MSWD15" "latest"
-  else
-    echo "==> 'Microsoft Word.app' (MSWD15) is not installed"
-  fi
+  check_office_version=$(defaults read "/Applications/Microsoft Word.app/Contents/Info.plist" CFBundleShortVersionString)
   
-  if [ "${update_excel}" == "true" ]; then
-    echo "==> Update 'Microsoft Excel.app' (XCEL15)..."
-    register_app "${path_excel}" "XCEL15"
-    perform_update "XCEL15" "latest"
-  else
-    echo "==> 'Microsoft Excel.app' (XCEL15) is not installed"
-  fi
+  version_major=$(echo ${check_office_version} | cut -d. -f1)
+  version_minor=$(echo ${check_office_version} | cut -d. -f2)
+  version_revision=$(echo ${check_office_version} | cut -d. -f3)
   
-  if [ "${update_powerpoint}" == "true" ]; then
-    echo "==> Update 'Microsoft PowerPoint.app' (PPT315)..."
-    register_app "${path_powerpoint}" "PPT315"
-    perform_update "PPT315" "latest"
-  else
-    echo "==> 'Microsoft PowerPoint.app' (PPT315) is not installed"
-  fi
+  echo "==> Installed Microsoft Office version is '${check_office_version}'"
   
-  if [ "${update_outlook}" == "true" ]; then
-    echo "==> Update 'Microsoft Outlook.app' (OPIM15)..."
-    register_app "${path_outlook}" "OPIM15"
-    perform_update "OPIM15" "latest"
-  else
-    echo "==> 'Microsoft Outlook.app' (OPIM15) is not installed"
-  fi
-  
-  if [ "${update_onenote}" == "true" ]; then
-    echo "==> Update 'Microsoft OneNote.app' (ONMC15)..."
-    register_app "${path_onenote}" "ONMC15"
-    perform_update "ONMC15" "latest"
-  else
-    echo "==> 'Microsoft OneNote.app' (ONMC15) is not installed"
-  fi
-  
-  if [ "${update_companyportal}" == "true" ]; then
-    echo "==> Update 'Company Portal.app' (IMCP01)..."
-    register_app "${path_companyportal}" "IMCP01"
-    perform_update "IMCP01" "latest"
-  else
-    echo "==> 'Company Portal.app' (IMCP01) is not installed"
+  if [ ${version_minor} -gt 16 ]; then
+    
+    echo "==> Run Update for Microsoft Office 2019"
+    
+    if [ "${update_word}" == "true" ]; then
+      echo "==> Update 'Microsoft Word.app' (MSWD2019)..."
+      register_app "${path_word}" "MSWD2019"
+      perform_update "MSWD2019" "latest"
+    else
+      echo "==> 'Microsoft Word.app' (MSWD2019) is not installed"
+    fi
+    
+    if [ "${update_excel}" == "true" ]; then
+      echo "==> Update 'Microsoft Excel.app' (XCEL2019)..."
+      register_app "${path_excel}" "XCEL2019"
+      perform_update "XCEL2019" "latest"
+    else
+      echo "==> 'Microsoft Excel.app' (XCEL2019) is not installed"
+    fi
+    
+    if [ "${update_powerpoint}" == "true" ]; then
+      echo "==> Update 'Microsoft PowerPoint.app' (PPT32019)..."
+      register_app "${path_powerpoint}" "PPT32019"
+      perform_update "PPT32019" "latest"
+    else
+      echo "==> 'Microsoft PowerPoint.app' (PPT32019) is not installed"
+    fi
+    
+    if [ "${update_outlook}" == "true" ]; then
+      echo "==> Update 'Microsoft Outlook.app' (OPIM2019)..."
+      register_app "${path_outlook}" "OPIM2019"
+      perform_update "OPIM2019" "latest"
+    else
+      echo "==> 'Microsoft Outlook.app' (OPIM2019) is not installed"
+    fi
+    
+    if [ "${update_onenote}" == "true" ]; then
+      echo "==> Update 'Microsoft OneNote.app' (ONMC2019)..."
+      register_app "${path_onenote}" "ONMC2019"
+      perform_update "ONMC2019" "latest"
+    else
+      echo "==> 'Microsoft OneNote.app' (ONMC2019) is not installed"
+    fi
+    
+    if [ "${update_companyportal}" == "true" ]; then
+      echo "==> Update 'Company Portal.app' (IMCP01)..."
+      register_app "${path_companyportal}" "IMCP01"
+      perform_update "IMCP01" "latest"
+    else
+      echo "==> 'Company Portal.app' (IMCP01) is not installed"
+    fi
+    
+  elif [ ${version_minor} -gt 16 ]; then
+    
+    echo "==> Run Update for Microsoft Office 2016"
+    
+    if [ "${update_word}" == "true" ]; then
+      echo "==> Update 'Microsoft Word.app' (MSWD15)..."
+      register_app "${path_word}" "MSWD15"
+      perform_update "MSWD15" "latest"
+    else
+      echo "==> 'Microsoft Word.app' (MSWD15) is not installed"
+    fi
+    
+    if [ "${update_excel}" == "true" ]; then
+      echo "==> Update 'Microsoft Excel.app' (XCEL15)..."
+      register_app "${path_excel}" "XCEL15"
+      perform_update "XCEL15" "latest"
+    else
+      echo "==> 'Microsoft Excel.app' (XCEL15) is not installed"
+    fi
+    
+    if [ "${update_powerpoint}" == "true" ]; then
+      echo "==> Update 'Microsoft PowerPoint.app' (PPT315)..."
+      register_app "${path_powerpoint}" "PPT315"
+      perform_update "PPT315" "latest"
+    else
+      echo "==> 'Microsoft PowerPoint.app' (PPT315) is not installed"
+    fi
+    
+    if [ "${update_outlook}" == "true" ]; then
+      echo "==> Update 'Microsoft Outlook.app' (OPIM15)..."
+      register_app "${path_outlook}" "OPIM15"
+      perform_update "OPIM15" "latest"
+    else
+      echo "==> 'Microsoft Outlook.app' (OPIM15) is not installed"
+    fi
+    
+    if [ "${update_onenote}" == "true" ]; then
+      echo "==> Update 'Microsoft OneNote.app' (ONMC15)..."
+      register_app "${path_onenote}" "ONMC15"
+      perform_update "ONMC15" "latest"
+    else
+      echo "==> 'Microsoft OneNote.app' (ONMC15) is not installed"
+    fi
+    
+    if [ "${update_companyportal}" == "true" ]; then
+      echo "==> Update 'Company Portal.app' (IMCP01)..."
+      register_app "${path_companyportal}" "IMCP01"
+      perform_update "IMCP01" "latest"
+    else
+      echo "==> 'Company Portal.app' (IMCP01) is not installed"
+    fi
+    
   fi
