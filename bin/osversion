@@ -131,4 +131,28 @@
 			echo "Error: Unknown version" && exit 1
 		fi
 		
+	elif [ -z "${version}" ]; then
+		
+		if [ ${minor} -eq 6 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 7 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 8 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 9 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 10 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 11 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 12 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 13 ]; then
+			echo "${major}.${minor}.${revision}"
+		elif [ ${minor} -eq 14 ]; then
+			echo "${major}.${minor}.${revision}"
+		else
+			echo "Error: Unknown version" && exit 1
+		fi
+		
 	fi
