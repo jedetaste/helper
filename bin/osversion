@@ -5,11 +5,6 @@
   while [[ $# -gt 0 ]]; do
     key="${1}"
     case "${key}" in
-      -n|--name)
-      name="true"
-      shift
-      shift
-      ;;
       -v|--version)
       version="${2}"
       shift
@@ -23,17 +18,13 @@
   
   set -- "${positional[@]}"
   
-  if [ "${name}" == "true" ] && [ ! -z "${version}" ]; then
-    echo "Error: Invalid argument" && exit 1
-  fi
-  
   macos_vers() {
     IFS='.' read -r major minor revision < <(/usr/bin/sw_vers -productVersion)
   }
   
   macos_vers
   
-  if [ "${name}" == "true" ]; then
+  if [ "${version}" == "name" ]; then
     
     if [ ${minor} -eq 6 ]; then
       echo "Mac OS X Snow Leopard"
@@ -57,10 +48,8 @@
       echo "Error: Unknown version" && exit 1
     fi
     
-  fi
+  elif [ "${version}" == "major" ]; then
   
-  if [ ! -z "${version}" ] && [ "${version}" == "major" ]; then
-    
     if [ ${minor} -eq 6 ]; then
       echo "${major}"
     elif [ ${minor} -eq 7 ]; then
@@ -83,7 +72,7 @@
       echo "Error: Unknown version" && exit 1
     fi
     
-  elif [ ! -z "${version}" ] && [ "${version}" == "minor" ]; then
+  elif [ "${version}" == "minor" ]; then
     
     if [ ${minor} -eq 6 ]; then
       echo "${minor}"
@@ -107,7 +96,7 @@
       echo "Error: Unknown version" && exit 1
     fi
     
-  elif [ ! -z "${version}" ] && [ "${version}" == "revision" ]; then
+  elif [ "${version}" == "revision" ]; then
     
     if [ ${minor} -eq 6 ]; then
       echo "${revision}"
