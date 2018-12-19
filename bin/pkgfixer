@@ -1,17 +1,14 @@
 #!/bin/bash
   
-  readonly progName=$(/usr/bin/basename ${0})
-  readonly progVersion="1.0"
+  readonly prog_name=$(/usr/bin/basename ${0})
+  readonly prog_version="1.0"
   
-  tmpFolder=$(getconf DARWIN_USER_TEMP_DIR)
-  randString=$(/usr/bin/openssl rand -hex 5)
-  workDir="${tmpFolder}${randString}"
-  /bin/mkdir -p "${workDir}"
+  tmpDir=$(/usr/local/bin/tmpDir)
   
-  expandFolder="${workDir}/expandFolder" && /bin/mkdir -p "${expandFolder}"
-  flattenFolder="${workDir}/flattenFolder" && /bin/mkdir -p "${flattenFolder}"
+  expand_folder="${tmpDir}/expand_folder" && /bin/mkdir -p "${expand_folder}"
+  flatten_folder="${tmpDir}/flatten_folder" && /bin/mkdir -p "${flatten_folder}"
   
-  PKGarg="${1}"
+  pkg_arg="${1}"
   
   if [ ! -z "${1}" ]; then
     echo "Process '${1}'"
@@ -19,16 +16,17 @@
     echo "Error: Add PKG path as argument" && exit 1
   fi
   
-  /bin/cp -r "${PKGarg}" "${workDir}/"
+  /bin/cp -r "${pkg_arg}" "${tmpDir}/"
   
-  if [ ! -s $(/usr/bin/find "${workDir}" -name "*.pkg") ]; then
+  if [ ! -s $(/usr/bin/find "${tmpDir}" -name "*.pkg") ]; then
     echo "Error: No PKG found" && exit 1
   else
-    PKGFilePath=$(/usr/bin/find "${workDir}" -name "*.pkg") && PKGFile=$(basename "${PKGFilePath}")
+    pkg_file_path=$(/usr/bin/find "${tmpDir}" -name "*.pkg")
+    pkg_file=$(/usr/bin/basename "${pkg_file_path}")
   fi
   
-  /usr/sbin/pkgutil --expand "${PKGFilePath}" "${expandFolder}/${PKGFile}"
-  /usr/sbin/pkgutil --flatten "${expandFolder}/${PKGFile}" "${flattenFolder}/${PKGFile}"
+  /usr/sbin/pkgutil --expand "${pkg_file_path}" "${expand_folder}/${pkg_file}"
+  /usr/sbin/pkgutil --flatten "${expand_folder}/${pkg_file}" "${flatten_folder}/${pkg_file}"
   
-  echo "Flat PKG saved at '${flattenFolder}/${PKGFile}'"
-  open -R "${flattenFolder}/${PKGFile}"
+  echo "Flat PKG saved at '${flatten_folder}/${pkg_file}'"
+  open -R "${flatten_folder}/${pkg_file}"
