@@ -43,31 +43,54 @@
     console "Error: '${cask}' is not a valid cask" && exit 1
   fi
   
-  app=$(/usr/local/bin/brew cask _stanza app ${cask})
-  version=$(/usr/local/bin/brew cask _stanza version ${cask})
-  url=$(/usr/local/bin/brew cask _stanza url ${cask})
-  sha265=$(/usr/local/bin/brew cask _stanza sha256 ${cask})
-  appcast=$(/usr/local/bin/brew cask _stanza appcast ${cask})
-  appcast_checkpoint=$(/usr/local/bin/brew cask _stanza appcast ${cask})
-  homepage=$(/usr/local/bin/brew cask _stanza homepage ${cask})
-  
-  if [ ! -z "${appcast}" ]; then
-    checkpoint=$(/usr/local/bin/appcast-checkpoint ${appcast_checkpoint})
-  fi
-  
   console "${bld}cask${clr}        ${sto}${cask}${clr}"
+  
+  app=$(/usr/local/bin/brew cask _stanza app ${cask})
   
   if [ ! -z "${app}" ]; then
     console "${bld}app${clr}         ${app}"
   fi
   
+  pkg=$(/usr/local/bin/brew cask _stanza pkg ${cask})
+  
+  if [ ! -z "${pkg}" ]; then
+    console "${bld}pkg${clr}         ${pkg}"
+  fi
+  
+  suite=$(/usr/local/bin/brew cask _stanza suite ${cask})
+  
+  if [ ! -z "${suite}" ]; then
+    console "${bld}suite${clr}       ${suite}"
+  fi
+  
+  version=$(/usr/local/bin/brew cask _stanza version ${cask})
+  url=$(/usr/local/bin/brew cask _stanza url ${cask})
+  
   console "${bld}version${clr}     ${mag}${version}${clr}"
   console "${bld}url${clr}         ${url}"
+  
+  sha265=$(/usr/local/bin/brew cask _stanza sha256 ${cask})
+  
   console "${bld}sha265${clr}      ${grn}${sha265}${clr}"
+  
+  appcast=$(/usr/local/bin/brew cask _stanza appcast ${cask})
+  appcast_checkpoint=$(/usr/local/bin/brew cask _stanza appcast ${cask})
+  
+  if [ ! -z "${appcast}" ]; then
+    checkpoint=$(/usr/local/bin/appcast-checkpoint ${appcast_checkpoint})
+  fi
   
   if [ ! -z "${appcast}" ]; then
     console "${bld}appcast${clr}     ${appcast}"
     console "${bld}checkpoint${clr}  ${blu}${checkpoint}${clr}"
   fi
+  
+  pkgutil=$(/usr/local/bin/brew cask _stanza pkgutil ${cask})
+  
+  if [ ! -z "${pkgutil}" ]; then
+    console "${bld}pkgutil${clr}   ${pkgutil}"
+  fi
+  
+  homepage=$(/usr/local/bin/brew cask _stanza homepage ${cask})
   
   console "${bld}homepage${clr}    ${uln}${homepage}${clr}"
