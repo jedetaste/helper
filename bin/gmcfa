@@ -37,8 +37,9 @@
   
   check_httpcode_cask=$(/usr/bin/curl -sL -w "%{http_code}" "https://raw.githubusercontent.com/Homebrew/homebrew-cask/master/Casks/${cask}.rb" -o /dev/null)
   check_httpcode_cask_drivers=$(/usr/bin/curl -sL -w "%{http_code}" "https://raw.githubusercontent.com/Homebrew/homebrew-cask-drivers/master/Casks/${cask}.rb" -o /dev/null)
+  check_httpcode_cask_versions=$(/usr/bin/curl -sL -w "%{http_code}" "https://raw.githubusercontent.com/Homebrew/homebrew-cask-versions/master/Casks/${cask}.rb" -o /dev/null)
   
-  if [ ${check_httpcode_cask} != 200 ] && [ ${check_httpcode_cask_drivers} != 200 ]; then
+  if [ ${check_httpcode_cask} != 200 ] && [ ${check_httpcode_cask_drivers} != 200 ] && [ ${check_httpcode_cask_versions} != 200 ]; then
     console "Error: '${cask}' is not a valid cask" && exit 1
   fi
   
