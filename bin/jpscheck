@@ -1,61 +1,66 @@
 #!/bin/bash
   
-  readonly progName=$(/usr/bin/basename ${0})
-  readonly progVersion="1.1"
+  readonly prog_name=$(basename ${0})
+  readonly prog_version="2.0"
   
   function logging() {
-    jpscheckLogFile="/var/log/jpscheck.log"
-    echo $(/bin/date) "==> $*" >> "${jpscheckLogFile}"
+    jpscheck_log_file="/var/log/jpscheck.log"
+    echo $(/bin/date) "==> $*" >> "${jpscheck_log_file}"
   }
   
-  logging "${progName} v${progVersion}"
+  logging "${prog_name} v${prog_version}"
   
-  if [ "$(/usr/bin/curl -sL -w "%{http_code}" "http://google.com/" -o /dev/null)" == "200" ]; then
+  if [ "$(curl -sL -w "%{http_code}" "http://google.com/" -o /dev/null)" == "200" ]; then
     
-    jamfProURL=$(/usr/bin/defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
-    logging "Jamf Pro URL is '${jamfProURL}'"
+    # Read general information
+    
+    jamf_pro_url=$(defaults read /Library/Preferences/com.jamfsoftware.jamf.plist jss_url)
+    logging "Jamf Pro URL is '${jamf_pro_url}'"
+    
+    # Jamf binary missing
     
     if [ ! -s "/usr/local/jamf/bin/jamf" ]; then
       
       if [ ! -d "/usr/local/jamf/bin/" ]; then
-        /bin/mkdir -p "/usr/local/jamf/bin/"
+        mkdir -p "/usr/local/jamf/bin/"
       fi
       
-      /usr/bin/curl -so "/usr/local/jamf/bin/jamf.gz" "${jamfProURL}bin/jamf.gz"
+      curl -so "/usr/local/jamf/bin/jamf.gz" "${jamfProURL}bin/jamf.gz"
       gunzip -fq "/usr/local/jamf/bin/jamf.gz" && chmod +x "/usr/local/jamf/bin/jamf"
       
       if [ ! -d "/usr/local/bin/" ]; then
-        /bin/mkdir -p "/usr/local/bin/"
+        mkdir -p "/usr/local/bin/"
       fi
       
-      if [ -z $(/usr/bin/readlink /usr/local/bin/jamf) ]; then
-        /bin/ln -s "/usr/local/jamf/bin/jamf" "/usr/local/bin/jamf"
+      if [ -z $(readlink /usr/local/bin/jamf) ]; then
+        ln -s "/usr/local/jamf/bin/jamf" "/usr/local/bin/jamf"
       fi
       
       /usr/local/bin/jamf "manage"
       
     fi
     
-    jamfProLogFile="/var/log/jamf.log"
+    # Jamf binary did not run the last 1 hour
     
-    if [ $(/usr/bin/defaults read "/Library/Preferences/com.jamfsoftware.jamf" do_not_upgrade_jamf) == 1 ]; then
+    jamf_pro_log_file="/var/log/jamf.log"
+    
+    if [ $(defaults read "/Library/Preferences/com.jamfsoftware.jamf" do_not_upgrade_jamf) == 1 ]; then
       logging "Jamf Pro binary could be outdated, perform update..."
-      /usr/bin/defaults write "/Library/Preferences/com.jamfsoftware.jamf" do_not_upgrade_jamf -bool false
-      /usr/bin/killall "jamf" && sleep 5 && /usr/local/bin/jamf "policy"
+      defaults write "/Library/Preferences/com.jamfsoftware.jamf" do_not_upgrade_jamf -bool false
+      killall "jamf" && sleep 5 && /usr/local/bin/jamf "policy"
     else
       logging "Jamf Pro binary seems up-to-date"
     fi
-
-    if [ $(/bin/date -j -v -1H +%s) -gt $(/usr/bin/stat -f "%m%t %Y" $jamfProLogFile) ]; then
+    
+    if [ $(date -j -v -1H +%s) -gt $(/usr/bin/stat -f "%m%t %Y" ${jamf_pro_log_file}) ]; then
       logging "It seems, that the Jamf Pro binary did not run the last 1 hour"
-      /usr/bin/killall "jamf" && sleep 5 && /usr/local/bin/jamf "policy"
+      killall "jamf" && sleep 5 && /usr/local/bin/jamf "policy"
       exit 0
     else
       logging "Jamf Pro binary is running properly"
       exit 0
     fi
-
+    
   else
-    logging "${progName} could not be performed, computer seems to be offline"
-    exit 0
+    logging "${prog_name} could not be performed, computer seems to be offline" && exit 0
   fi
