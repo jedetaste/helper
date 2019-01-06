@@ -44,14 +44,8 @@
     
     jamf_pro_log_file="/var/log/jamf.log"
     
-    if [ $(defaults read "/Library/Preferences/com.jamfsoftware.jamf" do_not_upgrade_jamf) == 1 ]; then
-      logging "Jamf Pro binary could be outdated, perform update..."
-      defaults write "/Library/Preferences/com.jamfsoftware.jamf" do_not_upgrade_jamf -bool false
-      killall "jamf" && sleep 5 && /usr/local/bin/jamf "policy"
-    else
-      logging "Jamf Pro binary seems up-to-date"
-    fi
-    
+    defaults write "/Library/Preferences/com.jamfsoftware.jamf.plist" do_not_upgrade_jamf -bool false
+        
     if [ $(date -j -v -1H +%s) -gt $(/usr/bin/stat -f "%m%t %Y" ${jamf_pro_log_file}) ]; then
       logging "It seems, that the Jamf Pro binary did not run the last 1 hour"
       killall "jamf" && sleep 5 && /usr/local/bin/jamf "policy"
