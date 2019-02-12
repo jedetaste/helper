@@ -1,0 +1,24 @@
+#!/bin/bash
+  
+  download="${1}"
+  
+  if [ -z "${download}" ]; then
+    echo "Missing argument" && exit 1
+  fi
+  
+  variable=(
+    'content_type'
+    'filename_effective'
+    'http_code'
+    'num_redirects'
+    'redirect_url'
+    'scheme'
+    'size_download'
+    'size_header'
+    'url_effective'
+  )
+  
+  for ((i = 0; i < "${#variable[@]}"; i++)); do
+    printf "${variable[$i]} ==> "
+    curl -w "%{${variable[$i]}}" -o /dev/null -s "${download}" && echo
+  done
