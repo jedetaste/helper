@@ -1,15 +1,14 @@
 #!/bin/bash
   
   readonly prog_name=$(/usr/bin/basename ${0})
-  readonly prog_version="1.0"
+  readonly prog_version="2.0"
   
-  if [ $# -lt 6 ] || [ $# -gt 6 ]; then
+  if [ $# -lt 4 ] || [ $# -gt 4 ]; then
     echo "Error: Invalid arguments"
     echo "  Usage"
     echo "    ${prog_name} \\"
     echo "      --address \"https://jps.example.com:8443\""
-    echo "      --username \"username\""
-    echo "      --password \"password\"" && exit 1
+    echo "      --credentials \"credentials\"" && exit 1
   fi
   
   positional=()
@@ -22,13 +21,8 @@
       shift
       shift
       ;;
-      -u|--username)
-      username="$2"
-      shift
-      shift
-      ;;
-      -p|--password)
-      password="$2"
+      -c|--credentials)
+      credentials="$2"
       shift
       ;;
       *)
@@ -40,105 +34,31 @@
   
   set -- "${positional[@]}"
   
-  #if [ "$(/usr/bin/curl -sL -w "%{http_code}" "${address}" -o /dev/null)" != "200" ]; then
-  #  echo "Error: '${address}' seems not be a Jamf Pro server" && exit 1
-  #fi
-  
-  sgr_color() {
-    
-    blk=$(tput setaf 0) # Black
-    red=$(tput setaf 1) # Red
-    grn=$(tput setaf 2) # Green
-    yel=$(tput setaf 3) # Yellow
-    blu=$(tput setaf 4) # Blue
-    mag=$(tput setaf 5) # Magenta
-    cya=$(tput setaf 6) # Cyan
-    whi=$(tput setaf 7) # White
-    def=$'\e[39m'       # Default foreground color
-  
-    clr=$(tput sgr0)
-    
-  }
-  
-  sgr_attributes() {
-    
-    bld=$(tput bold)  # Bold
-    dim=$(tput dim)   # Dim
-    uln=$(tput smul)  # Underline
-    bnk=$(tput blink) # Blink
-    rev=$(tput rev)   # Reverse
-    sto=$(tput smso)  # Standout
-  
-    nobld=$'\e[22m'    # Deactivate Bold
-    nouln=$(tput rmul) # Deactivate Underline
-    nobnk=$'\e[25m'    # Deactivate Blink
-    norev=$'\e[27m'    # Deactivate Reverse
-    nosto=$(tput rmso) # Deactivate Standout
-  
-    clr=$(tput sgr0)
-    
-  }
-  
-  sgr_color
-  sgr_attributes
-  
   jamf_computers_resource="${address}/JSSResource/computers"
   jamf_devices_resource="${address}/JSSResource/mobiledevices"
   
-  tmpFolder=$(getconf DARWIN_USER_TEMP_DIR) && randString=$(/usr/bin/openssl rand -hex 5) && workDir="${tmpFolder}${randString}" && /bin/mkdir -p "${workDir}"
+  curl -fk --header "authorization: Basic ${credentials}" "${jamf_computers_resource}" --header "accept: application/xml" -s | xmllint --format - | awk -F'>|<' '/<id>/,/<\/id>/{print $3}' | sort -n | while read line && [ ! -z "${line}" ]; do
   
-  /usr/bin/curl \
-    -H "Accept: application/xml" \
-    --silent \
-    -o "${workDir}/jamf_devices_resource_output.xml" \
-    -fku "${username}":"${password}" \
-    "${jamf_devices_resource}" \
-    --request GET
+    echo "==> Flush faileds commands on computer id '${line}' on '${address}'"
   
-  if [ $(/usr/local/bin/xmlstarlet sel -t -v '/mobile_devices/size/text()' "${workDir}/jamf_devices_resource_output.xml") -gt 1 ]; then
-    
-    /usr/local/bin/xmlstarlet sel -t -v '/mobile_devices/mobile_device/id/text()' "${workDir}/jamf_devices_resource_output.xml" > "${workDir}/devices_ID_list"
-    
-    while read line && [ ! -z "${line}" ]; do
-      
-      /usr/bin/curl \
-        --silent \
-        -fku "${username}":"${password}" \
-        "${address}/JSSResource/commandflush/mobiledevices/id/${line}/status/Failed" \
-        -X DELETE > /dev/null 2>&1
-      
-      echo "${bld}${blu}==>${clr} Flushed '${red}Failed${clr}' commands for device '${yel}${address}/mobileDevices.html?id=${line}${clr}'"
-      
-    done < "${workDir}/devices_ID_list"
-    
-  else
-    echo "${yel}Warning${clr}: No devices found on '${address}'"
-  fi
+    /usr/bin/curl \
+      --header "authorization: Basic ${credentials}" \
+      --silent \
+      -fk \
+      "${address}/JSSResource/commandflush/computers/id/${line}/status/Failed" \
+      -X DELETE > /dev/null 2>&1
   
-  /usr/bin/curl \
-    -H "Accept: application/xml" \
-    --silent \
-    -o "${workDir}/jamf_computers_resource_output.xml" \
-    -fku "${username}":"${password}" \
-    "${jamf_computers_resource}" \
-    --request GET
+  done
   
-  if [ $(/usr/local/bin/xmlstarlet sel -t -v '/computers/size/text()' "${workDir}/jamf_computers_resource_output.xml") -gt 1 ]; then
-    
-    /usr/local/bin/xmlstarlet sel -t -v '/computers/computer/id/text()' "${workDir}/jamf_computers_resource_output.xml" > "${workDir}/computer_ID_list"
-    
-    while read line && [ ! -z "${line}" ]; do
-      
-      /usr/bin/curl \
-        --silent \
-        -fku "${username}":"${password}" \
-        "${address}/JSSResource/commandflush/computers/id/${line}/status/Failed" \
-        -X DELETE > /dev/null 2>&1
-      
-      echo "${bld}${blu}==>${clr} Flushed '${red}Failed${clr}' commands for computer '${yel}${address}/computers.html?id=${line}${clr}'"
-      
-    done < "${workDir}/computer_ID_list"
-    
-  else
-    echo "${yel}Warning${clr}: No computers found on '${address}'"
-  fi
+  curl -fk --header "authorization: Basic ${credentials}" "${jamf_devices_resource}" --header "accept: application/xml" -s | xmllint --format - | awk -F'>|<' '/<id>/,/<\/id>/{print $3}' | sort -n | while read line && [ ! -z "${line}" ]; do
+  
+    echo "==> Flush faileds commands on mobile device id '${line}' on '${address}'"
+  
+    /usr/bin/curl \
+      --header "authorization: Basic ${credentials}" \
+      --silent \
+      -fk \
+      "${address}/JSSResource/commandflush/mobiledevices/id/${line}/status/Failed" \
+      -X DELETE > /dev/null 2>&1
+  
+  done
