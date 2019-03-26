@@ -1,12 +1,12 @@
 #!/bin/bash
-  
+
   update_word="true"
   update_excel="true"
   update_powerpoint="true"
   update_outlook="true"
   update_onenote="true"
   update_companyportal="true"
-  
+
   path_word="/Applications/Microsoft Word.app"
   path_excel="/Applications/Microsoft Excel.app"
   path_powerpoint="/Applications/Microsoft PowerPoint.app"
@@ -14,45 +14,45 @@
   path_onenote="/Applications/Microsoft OneNote.app"
   path_companyportal="/Applications/Company Portal.app"
   path_mau="/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app"
-  
+
   function check_mau_install() {
     if [ ! -e "/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" ]; then
       echo "==> MAU 3.18 or later is required!" && exit 1
     fi
   }
-  
+
   function check_app_install() {
-    
+
     if [ ! -e "${path_word}" ]; then
       update_word="false"
     fi
-    
+
     if [ ! -e "${path_excel}" ]; then
       update_excel="false"
     fi
-    
+
     if [ ! -e "${path_powerpoint}" ]; then
       update_powerpoint="false"
     fi
-    
+
     if [ ! -e "${path_outlook}" ]; then
       update_outlook="false"
     fi
-    
+
     if [ ! -e "${path_onenote}" ]; then
       update_onenote="false"
     fi
-    
+
     if [ ! -e "${path_companyportal}" ]; then
       update_companyportal="false"
     fi
-    
+
   }
-  
+
   function determine_login_state() {
-    
+
     currentuser=$(/usr/local/bin/currentuser)
-    
+
     if [ -z "${currentuser}" ]; then
       echo "==> No user logged in"
       cmd_prefix=""
@@ -60,38 +60,38 @@
       echo "==> User '${currentuser}' is logged in"
       cmd_prefix="sudo -u ${currentuser} "
     fi
-    
+
   }
-  
+
   function register_app() {
     $(${cmd_prefix}/usr/bin/defaults write com.microsoft.autoupdate2 Applications -dict-add "${1}" "{ 'Application ID' = '${2}'; LCID = 1033 ; }")
   }
-  
+
   function perform_update() {
     ${cmd_prefix}"/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate" --install --apps "${1}" "${2}" --wait 600
   }
-  
+
   check_mau_install
-  
+
   check_app_install
-  
+
   determine_login_state
-  
+
   echo "==> Register 'Microsoft AutoUpdate.app' (MSau03)..."
   register_app "${path_mau}" "MSau03"
-  
+
   check_office_version=$(defaults read "/Applications/Microsoft Word.app/Contents/Info.plist" CFBundleShortVersionString)
-  
+
   version_major=$(echo ${check_office_version} | cut -d. -f1)
   version_minor=$(echo ${check_office_version} | cut -d. -f2)
   version_revision=$(echo ${check_office_version} | cut -d. -f3)
-  
+
   echo "==> Installed Microsoft Office version is '${check_office_version}'"
-  
+
   if [ ${version_minor} -gt 16 ]; then
-    
+
     echo "==> Run Update for Microsoft Office 2019"
-    
+
     if [ "${update_word}" == "true" ]; then
       echo "==> Update 'Microsoft Word.app' (MSWD2019)..."
       register_app "${path_word}" "MSWD2019"
@@ -99,7 +99,7 @@
     else
       echo "==> 'Microsoft Word.app' (MSWD2019) is not installed"
     fi
-    
+
     if [ "${update_excel}" == "true" ]; then
       echo "==> Update 'Microsoft Excel.app' (XCEL2019)..."
       register_app "${path_excel}" "XCEL2019"
@@ -107,7 +107,7 @@
     else
       echo "==> 'Microsoft Excel.app' (XCEL2019) is not installed"
     fi
-    
+
     if [ "${update_powerpoint}" == "true" ]; then
       echo "==> Update 'Microsoft PowerPoint.app' (PPT32019)..."
       register_app "${path_powerpoint}" "PPT32019"
@@ -115,7 +115,7 @@
     else
       echo "==> 'Microsoft PowerPoint.app' (PPT32019) is not installed"
     fi
-    
+
     if [ "${update_outlook}" == "true" ]; then
       echo "==> Update 'Microsoft Outlook.app' (OPIM2019)..."
       register_app "${path_outlook}" "OPIM2019"
@@ -123,7 +123,7 @@
     else
       echo "==> 'Microsoft Outlook.app' (OPIM2019) is not installed"
     fi
-    
+
     if [ "${update_onenote}" == "true" ]; then
       echo "==> Update 'Microsoft OneNote.app' (ONMC2019)..."
       register_app "${path_onenote}" "ONMC2019"
@@ -131,7 +131,7 @@
     else
       echo "==> 'Microsoft OneNote.app' (ONMC2019) is not installed"
     fi
-    
+
     if [ "${update_companyportal}" == "true" ]; then
       echo "==> Update 'Company Portal.app' (IMCP01)..."
       register_app "${path_companyportal}" "IMCP01"
@@ -139,11 +139,11 @@
     else
       echo "==> 'Company Portal.app' (IMCP01) is not installed"
     fi
-    
+
   else
-    
+
     echo "==> Run Update for Microsoft Office 2016"
-    
+
     if [ "${update_word}" == "true" ]; then
       echo "==> Update 'Microsoft Word.app' (MSWD15)..."
       register_app "${path_word}" "MSWD15"
@@ -151,7 +151,7 @@
     else
       echo "==> 'Microsoft Word.app' (MSWD15) is not installed"
     fi
-    
+
     if [ "${update_excel}" == "true" ]; then
       echo "==> Update 'Microsoft Excel.app' (XCEL15)..."
       register_app "${path_excel}" "XCEL15"
@@ -159,7 +159,7 @@
     else
       echo "==> 'Microsoft Excel.app' (XCEL15) is not installed"
     fi
-    
+
     if [ "${update_powerpoint}" == "true" ]; then
       echo "==> Update 'Microsoft PowerPoint.app' (PPT315)..."
       register_app "${path_powerpoint}" "PPT315"
@@ -167,7 +167,7 @@
     else
       echo "==> 'Microsoft PowerPoint.app' (PPT315) is not installed"
     fi
-    
+
     if [ "${update_outlook}" == "true" ]; then
       echo "==> Update 'Microsoft Outlook.app' (OPIM15)..."
       register_app "${path_outlook}" "OPIM15"
@@ -175,7 +175,7 @@
     else
       echo "==> 'Microsoft Outlook.app' (OPIM15) is not installed"
     fi
-    
+
     if [ "${update_onenote}" == "true" ]; then
       echo "==> Update 'Microsoft OneNote.app' (ONMC15)..."
       register_app "${path_onenote}" "ONMC15"
@@ -183,7 +183,7 @@
     else
       echo "==> 'Microsoft OneNote.app' (ONMC15) is not installed"
     fi
-    
+
     if [ "${update_companyportal}" == "true" ]; then
       echo "==> Update 'Company Portal.app' (IMCP01)..."
       register_app "${path_companyportal}" "IMCP01"
@@ -191,5 +191,5 @@
     else
       echo "==> 'Company Portal.app' (IMCP01) is not installed"
     fi
-    
+
   fi

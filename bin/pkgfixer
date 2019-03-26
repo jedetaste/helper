@@ -1,15 +1,15 @@
 #!/bin/bash
-  
+
   readonly prog_name=$(/usr/bin/basename ${0})
   readonly prog_version="1.0"
-  
+
   tmpDir=$(/usr/local/bin/tmpDir)
-  
+
   expand_folder="${tmpDir}/expand_folder" && /bin/mkdir -p "${expand_folder}"
   flatten_folder="${tmpDir}/flatten_folder" && /bin/mkdir -p "${flatten_folder}"
-  
+
   pkg_arg="${1}"
-  
+
   if [ ! -z "${1}" ]; then
     echo "Process '${1}'"
   else
@@ -17,16 +17,16 @@
   fi
   
   /bin/cp -r "${pkg_arg}" "${tmpDir}/"
-  
+
   if [ ! -s $(/usr/bin/find "${tmpDir}" -name "*.pkg") ]; then
     echo "Error: No PKG found" && exit 1
   else
     pkg_file_path=$(/usr/bin/find "${tmpDir}" -name "*.pkg")
     pkg_file=$(/usr/bin/basename "${pkg_file_path}")
   fi
-  
+
   /usr/sbin/pkgutil --expand "${pkg_file_path}" "${expand_folder}/${pkg_file}"
   /usr/sbin/pkgutil --flatten "${expand_folder}/${pkg_file}" "${flatten_folder}/${pkg_file}"
-  
+
   echo "Flat PKG saved at '${flatten_folder}/${pkg_file}'"
   open -R "${flatten_folder}/${pkg_file}"
