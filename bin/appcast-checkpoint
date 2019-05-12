@@ -1,6 +1,6 @@
 #!/bin/bash
 
-  prog_name=$(/usr/bin/basename ${0})
+  prog_name=$(basename ${0})
   prog_version="2.0"
 
   if [ -z "${1}" ]; then
@@ -23,17 +23,17 @@
 
   sgr_color() {
 
-    blk=$(/usr/bin/tput setaf 0) # Black
-    red=$(/usr/bin/tput setaf 1) # Red
-    grn=$(/usr/bin/tput setaf 2) # Green
-    yel=$(/usr/bin/tput setaf 3) # Yellow
-    blu=$(/usr/bin/tput setaf 4) # Blue
-    mag=$(/usr/bin/tput setaf 5) # Magenta
-    cya=$(/usr/bin/tput setaf 6) # Cyan
-    whi=$(/usr/bin/tput setaf 7) # White
+    blk=$(tput setaf 0) # Black
+    red=$(tput setaf 1) # Red
+    grn=$(tput setaf 2) # Green
+    yel=$(tput setaf 3) # Yellow
+    blu=$(tput setaf 4) # Blue
+    mag=$(tput setaf 5) # Magenta
+    cya=$(tput setaf 6) # Cyan
+    whi=$(tput setaf 7) # White
     def=$'\e[39m'       # Default foreground color
 
-    clr=$(/usr/bin/tput sgr0)
+    clr=$(tput sgr0)
 
   }
 
@@ -44,6 +44,6 @@
   appcast="${1}"
   user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36"
 
-  checkpoint=$(/usr/bin/curl --compressed -s -L -A "${user_agent}" "${appcast}" | /usr/bin/sed 's|<pubDate>[^<]*</pubDate>||g' | /usr/bin/shasum --algorithm "256" | /usr/bin/cut -d' ' -f1)
+  checkpoint=$(curl --compressed -s -L -A "${user_agent}" "${appcast}" | sed 's|<pubDate>[^<]*</pubDate>||g' | --algorithm "256" | cut -d' ' -f1)
 
   console "${blu}${checkpoint}${clr}"
