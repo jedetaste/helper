@@ -9,7 +9,7 @@
 
   logging_standard() {
 
-    log_file="/private/tmp/${prog_name}.log"
+    log_file="/tmp/${prog_name}.log"
 
     [ ! -s "${log_file}" ] && touch "${log_file}"
 
