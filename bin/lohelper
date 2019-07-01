@@ -1,16 +1,16 @@
 #!/bin/bash
 
-  readonly progName=$(/usr/bin/basename ${0})
+  readonly progName=$(basename ${0})
   readonly progVersion="1.1"
-  
+
   if [ ! -s "/Applications/LehrerOffice/LehrerOffice.app" ]; then
     echo "Warning: LehrerOffice is not installed" && exit 0
   fi
-  
+
   LOINIPath="/Applications/LehrerOffice/LehrerOffice.ini"
   LOBundlePath="/Applications/LehrerOffice/LehrerOffice.app"
-  LOVersion=$(/usr/bin/defaults read "${LOBundlePath}/Contents/Info.plist" CFBundleShortVersionString)
-  
+  LOVersion=$(defaults read "${LOBundlePath}/Contents/Info.plist" CFBundleShortVersionString)
+
   if [ $# -lt 6 ] || [ $# -gt 6 ]; then
     echo "Error: Invalid arguments"
     echo "  Usage"
@@ -21,7 +21,7 @@
   fi
 
   positional=()
-  
+
   while [[ $# -gt 0 ]]; do
     key="${1}"
     case "${key}" in
@@ -45,15 +45,15 @@
       ;;
     esac
   done
-  
+
   set -- "${positional[@]}"
-  
+
   LOLHDPath="/Applications/LehrerOffice/${lhdnameArg}.lhd"
-  
+
   if [ -s "${LOINIPath}" ]; then
     rm -f "${LOINIPath}"
   fi
-  
+
   echo "[application]" >> "${LOINIPath}"
   echo >> "${LOINIPath}"
   echo "version=${LOVersion}" >> "${LOINIPath}"
@@ -71,11 +71,11 @@
   echo "open=%Programm%:${lhdnameArg}.lhd" >> "${LOINIPath}"
   echo >> "${LOINIPath}"
   echo "[userdlg]" >> "${LOINIPath}"
-  
+
   if [ -s "${LOLHDPath}" ]; then
     rm -f "${LOLHDPath}"
   fi
-  
+
   echo "[DB]" >> "${LOLHDPath}"
   echo "System=Hosting" >> "${LOLHDPath}"
   echo "Hosting_URL_1=https://www.lehrerofficeweb.ch/services/hosting/hosting_lhd.php" >> "${LOLHDPath}"
