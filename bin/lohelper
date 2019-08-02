@@ -1,85 +1,89 @@
 #!/bin/bash
 
-  readonly progName=$(basename ${0})
-  readonly progVersion="1.1"
+prog_name=$(basename "${0}")
+prog_version="1.1"
 
-  if [ ! -s "/Applications/LehrerOffice/LehrerOffice.app" ]; then
-    echo "Warning: LehrerOffice is not installed" && exit 0
-  fi
+if [ ! -s "/Applications/LehrerOffice/LehrerOffice.app" ]; then
+  echo "Warning: LehrerOffice is not installed" && exit 0
+fi
 
-  LOINIPath="/Applications/LehrerOffice/LehrerOffice.ini"
-  LOBundlePath="/Applications/LehrerOffice/LehrerOffice.app"
-  LOVersion=$(defaults read "${LOBundlePath}/Contents/Info.plist" CFBundleShortVersionString)
+lo_ini_path="/Applications/LehrerOffice/LehrerOffice.ini"
+lo_bundle_path="/Applications/LehrerOffice/LehrerOffice.app"
+lo_version=$(defaults read "${lo_bundle_path}/Contents/Info.plist" CFBundleShortVersionString)
 
-  if [ $# -lt 6 ] || [ $# -gt 6 ]; then
-    echo "Error: Invalid arguments"
-    echo "  Usage"
-    echo "    ${progName} \\"
-    echo "      --lhdname \"lhdname\""
-    echo "      --lhdcustomer \"lhdcustomer\""
-    echo "      --lhdkey \"lhdkey\"" && exit
-  fi
+if [ $# -lt 6 ] || [ $# -gt 6 ]; then
+  echo "Error: Invalid arguments"
+  echo "  Usage"
+  echo "    ${prog_name} \\"
+  echo "      --lhdname \"lhdname\""
+  echo "      --lhdcustomer \"lhdcustomer\""
+  echo "      --lhdkey \"lhdkey\"" && exit
+fi
 
-  positional=()
+positional=()
 
-  while [[ $# -gt 0 ]]; do
-    key="${1}"
-    case "${key}" in
-      -n|--lhdname)
-      lhdnameArg="$2"
-      shift
-      shift
-      ;;
-      -c|--lhdcustomer)
-      lhdcustomerArg="$2"
-      shift
-      shift
-      ;;
-      -k|--lhdkey)
-      lhdkeyArg="$2"
-      shift
-      ;;
-      *)
-      positional+=("$1")
-      shift
-      ;;
-    esac
-  done
+while [[ $# -gt 0 ]]; do
+  key="${1}"
+  case "${key}" in
+  -n | --lhdname)
+    lhd_name_arg="$2"
+    shift
+    shift
+    ;;
+  -c | --lhdcustomer)
+    lhd_customer_arg="$2"
+    shift
+    shift
+    ;;
+  -k | --lhdkey)
+    lhd_key_arg="$2"
+    shift
+    ;;
+  *)
+    positional+=("$1")
+    shift
+    ;;
+  esac
+done
 
-  set -- "${positional[@]}"
+set -- "${positional[@]}"
 
-  LOLHDPath="/Applications/LehrerOffice/${lhdnameArg}.lhd"
+lo_lhd_path="/Applications/LehrerOffice/${lhd_name_arg}.lhd"
 
-  if [ -s "${LOINIPath}" ]; then
-    rm -f "${LOINIPath}"
-  fi
+if [ -s "${lo_ini_path}" ]; then
+  rm -f "${lo_ini_path}"
+fi
 
-  echo "[application]" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "version=${LOVersion}" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "env=1" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "data=2" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "[update]" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "multi=0" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "[system]" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "open=%Programm%:${lhdnameArg}.lhd" >> "${LOINIPath}"
-  echo >> "${LOINIPath}"
-  echo "[userdlg]" >> "${LOINIPath}"
+cat >>"${lo_ini_path}" <<EOF
+[application]
 
-  if [ -s "${LOLHDPath}" ]; then
-    rm -f "${LOLHDPath}"
-  fi
+version=${lo_version}
 
-  echo "[DB]" >> "${LOLHDPath}"
-  echo "System=Hosting" >> "${LOLHDPath}"
-  echo "Hosting_URL_1=https://www.lehrerofficeweb.ch/services/hosting/hosting_lhd.php" >> "${LOLHDPath}"
-  echo "Hosting_URL_2=https://www.lehreroffice.net/services/hosting/hosting_lhd.php" >> "${LOLHDPath}"
-  echo "Hosting_Kundennummer=${lhdcustomerArg}" >> "${LOLHDPath}"
-  echo "Hosting_Key=${lhdkeyArg}" >> "${LOLHDPath}"
-  echo "Timeout=10" >> "${LOLHDPath}"
+env=1
+
+data=2
+
+[update]
+
+multi=0
+
+[system]
+
+open=%Programm%:${lhd_name_arg}.lhd
+
+[userdlg]
+EOF
+
+if [ -s "${lo_lhd_path}" ]; then
+  rm -f "${lo_lhd_path}"
+fi
+
+cat >>"${lo_lhd_path}" <<EOF
+[DB]
+System=Hosting
+Hosting_URL_1=https://www.lehrerofficeweb.ch/services/hosting/hosting_lhd.php
+Hosting_URL_2=https://www.lehreroffice.net/services/hosting/hosting_lhd.php
+Hosting_Kundennummer=${lhd_customer_arg}
+Hosting_Key=${lhd_key_arg}
+Timeout=10
+EOF
