@@ -1,0 +1,15 @@
+#!/bin/bash
+
+adam_id="${1}"
+
+if [ ! -n "${adam_id}" ]; then
+	echo "Error: Please provide ADAM ID" && exit 1
+fi
+
+curl -s -o "/tmp/1.txt.js" "https://itunes.apple.com/lookup?id=${adam_id}&country=ch"
+
+mv "/tmp/1.txt.js" "/tmp/1.txt.json"
+
+jq '.' "/tmp/1.txt.json"
+
+rm -f "/tmp/1.txt.json"
