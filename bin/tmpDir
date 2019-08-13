@@ -1,4 +1,4 @@
 #!/bin/bash
 
-  string=$(openssl rand -hex 5)
-  mkdir -p "$(getconf DARWIN_USER_TEMP_DIR)${string}" && echo "$(getconf DARWIN_USER_TEMP_DIR)${string}"
+string=$(openssl rand -hex 5)
+mkdir -p "$(getconf DARWIN_USER_TEMP_DIR)${string}" && echo "$(getconf DARWIN_USER_TEMP_DIR)${string}"
