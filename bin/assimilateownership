@@ -1,31 +1,30 @@
 #!/bin/bash
 
-  readonly progName=$(/usr/bin/basename ${0})
-  readonly progVersion="1.0"
+prog_name=$(basename "${0}")
 
-  if [ $# -lt 2 ] || [ $# -gt 2 ]; then
-    echo "Error: Invalid arguments"
-    echo "  Usage"
-    echo "    ${progName} \\"
-    echo "      --path \"Path to Bundle\"" && exit
-  fi
+if [ $# -lt 2 ] || [ $# -gt 2 ]; then
+  echo "Error: Invalid arguments"
+  echo "  Usage"
+  echo "    ${prog_name} \\"
+  echo "      --path \"Path to Bundle\"" && exit
+fi
 
-  positional=()
+positional=()
 
-  while [[ $# -gt 0 ]]; do
-    key="${1}"
-    case "${key}" in
-      -p|--path)
-      path="$2"
-      shift
-      ;;
-      *)
-      positional+=("$1")
-      shift
-      ;;
-    esac
-  done
+while [[ $# -gt 0 ]]; do
+  key="${1}"
+  case "${key}" in
+  -p | --path)
+    path="$2"
+    shift
+    ;;
+  *)
+    positional+=("$1")
+    shift
+    ;;
+  esac
+done
 
-  set -- "${positional[@]}"
+set -- "${positional[@]}"
 
-  /usr/sbin/chown -R $(/usr/local/bin/currentuser):staff "${path}"
+chown -R "$(/usr/local/bin/currentuser)":staff "${path}"
