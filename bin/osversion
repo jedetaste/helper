@@ -1,147 +1,157 @@
 #!/bin/bash
-  
-  positional=()
-  
-  while [[ $# -gt 0 ]]; do
-    key="${1}"
-    case "${key}" in
-      -v|--version)
-      version="${2}"
-      shift
-      ;;
-      *)
-      positional+=("$1")
-      shift
-      ;;
-    esac
-  done
-  
-  set -- "${positional[@]}"
-  
-  macos_vers() {
-    IFS='.' read -r major minor revision < <(/usr/bin/sw_vers -productVersion)
-  }
-  
-  macos_vers
-  
-  if [ "${version}" == "name" ]; then
-    
-    if [ ${minor} -eq 6 ]; then
-      echo "Mac OS X Snow Leopard"
-    elif [ ${minor} -eq 7 ]; then
-      echo "Mac OS X Lion"
-    elif [ ${minor} -eq 8 ]; then
-      echo "Mac OS X Mountain Lion"
-    elif [ ${minor} -eq 9 ]; then
-      echo "Mac OS X Mavericks"
-    elif [ ${minor} -eq 10 ]; then
-      echo "Mac OS X Yosemite"
-    elif [ ${minor} -eq 11 ]; then
-      echo "Mac OS X El Capitan"
-    elif [ ${minor} -eq 12 ]; then
-      echo "macOS Sierra"
-    elif [ ${minor} -eq 13 ]; then
-      echo "macOS High Sierra"
-    elif [ ${minor} -eq 14 ]; then
-      echo "macOS Mojave"
-    else
-      echo "Error: Unknown version" && exit 1
-    fi
-    
-  elif [ "${version}" == "major" ]; then
-  
-    if [ ${minor} -eq 6 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 7 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 8 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 9 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 10 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 11 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 12 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 13 ]; then
-      echo "${major}"
-    elif [ ${minor} -eq 14 ]; then
-      echo "${major}"
-    else
-      echo "Error: Unknown version" && exit 1
-    fi
-    
-  elif [ "${version}" == "minor" ]; then
-    
-    if [ ${minor} -eq 6 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 7 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 8 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 9 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 10 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 11 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 12 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 13 ]; then
-      echo "${minor}"
-    elif [ ${minor} -eq 14 ]; then
-      echo "${minor}"
-    else
-      echo "Error: Unknown version" && exit 1
-    fi
-    
-  elif [ "${version}" == "revision" ]; then
-    
-    if [ ${minor} -eq 6 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 7 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 8 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 9 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 10 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 11 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 12 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 13 ]; then
-      echo "${revision}"
-    elif [ ${minor} -eq 14 ]; then
-      echo "${revision}"
-    else
-      echo "Error: Unknown version" && exit 1
-    fi
-    
-  elif [ -z "${version}" ]; then
-    
-    if [ ${minor} -eq 6 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 7 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 8 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 9 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 10 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 11 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 12 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 13 ]; then
-      echo "${major}.${minor}.${revision}"
-    elif [ ${minor} -eq 14 ]; then
-      echo "${major}.${minor}.${revision}"
-    else
-      echo "Error: Unknown version" && exit 1
-    fi
-    
+
+positional=()
+
+while [[ $# -gt 0 ]]; do
+  key="${1}"
+  case "${key}" in
+  -v | --version)
+    version="${2}"
+    shift
+    ;;
+  *)
+    positional+=("$1")
+    shift
+    ;;
+  esac
+done
+
+set -- "${positional[@]}"
+
+macos_vers() {
+  IFS='.' read -r major minor revision < <(sw_vers -productVersion)
+}
+
+macos_vers
+
+if [ "${version}" == "name" ]; then
+
+  if [ "${minor}" -eq 6 ]; then
+    echo "Mac OS X Snow Leopard"
+  elif [ "${minor}" -eq 7 ]; then
+    echo "Mac OS X Lion"
+  elif [ "${minor}" -eq 8 ]; then
+    echo "Mac OS X Mountain Lion"
+  elif [ "${minor}" -eq 9 ]; then
+    echo "Mac OS X Mavericks"
+  elif [ "${minor}" -eq 10 ]; then
+    echo "Mac OS X Yosemite"
+  elif [ "${minor}" -eq 11 ]; then
+    echo "Mac OS X El Capitan"
+  elif [ "${minor}" -eq 12 ]; then
+    echo "macOS Sierra"
+  elif [ "${minor}" -eq 13 ]; then
+    echo "macOS High Sierra"
+  elif [ "${minor}" -eq 14 ]; then
+    echo "macOS Mojave"
+  elif [ "${minor}" -eq 15 ]; then
+    echo "macOS Catalina"
+  else
+    echo "Error: Unknown version" && exit 1
   fi
+
+elif [ "${version}" == "major" ]; then
+
+  if [ "${minor}" -eq 6 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 7 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 8 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 9 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 10 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 11 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 12 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 13 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 14 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 15 ]; then
+    echo "${major}"
+  else
+    echo "Error: Unknown version" && exit 1
+  fi
+
+elif [ "${version}" == "minor" ]; then
+
+  if [ "${minor}" -eq 6 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 7 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 8 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 9 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 10 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 11 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 12 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 13 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 14 ]; then
+    echo "${minor}"
+  elif [ "${minor}" -eq 15 ]; then
+    echo "${minor}"
+  else
+    echo "Error: Unknown version" && exit 1
+  fi
+
+elif [ "${version}" == "revision" ]; then
+
+  if [ "${minor}" -eq 6 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 7 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 8 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 9 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 10 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 11 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 12 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 13 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 14 ]; then
+    echo "${revision}"
+  elif [ "${minor}" -eq 15 ]; then
+    echo "${revision}"
+  else
+    echo "Error: Unknown version" && exit 1
+  fi
+
+elif [ -z "${version}" ]; then
+
+  if [ "${minor}" -eq 6 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 7 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 8 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 9 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 10 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 11 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 12 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 13 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 14 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 15 ]; then
+    echo "${major}.${minor}.${revision}"
+  else
+    echo "Error: Unknown version" && exit 1
+  fi
+
+fi
