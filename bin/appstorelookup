@@ -1,6 +1,7 @@
 #!/bin/bash
 
 adam_id="${1}"
+adam_id="${adam_id//id/}"
 
 if [ -z "${adam_id}" ]; then
   echo "Error: Please provide ADAM ID" && exit 1
