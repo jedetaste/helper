@@ -1,0 +1,67 @@
+#!/bin/bash
+
+prog_name=$(basename "${0}")
+
+while [[ $# -gt 0 ]]; do
+  key="${1}"
+  case "${key}" in
+  -p | --path)
+    path="${2}"
+    shift
+    shift
+    ;;
+  -u | --url)
+    url="${2}"
+    shift
+    shift
+    ;;
+  -i | --icon)
+    icon="${2}"
+    shift
+    ;;
+  *)
+    positional+=("${1}")
+    shift
+    ;;
+  esac
+done
+
+set -- "${positional[@]}"
+
+usage() {
+  echo "Usage:"
+  echo "  ${prog_name} --path '/Applications/Example' --url 'https://example.com' --icon 'Icon Example'"
+}
+
+if [ -z "${path}" ]; then
+  usage && exit 1
+elif [ -z "${url}" ]; then
+  usage && exit 1
+elif [ ! -s "/usr/local/bin/fileicon" ]; then
+  echo "Error: fileicon binary could not be found" && exit 1
+fi
+
+echo "=> Create '${path}.url'"
+
+[ -s "${path}.url" ] && rm -f "${path}.url"
+
+cat >>"${path}.url" <<EOF
+[InternetShortcut]
+URL=${url}
+EOF
+
+if [ -n "${icon}" ]; then
+  icon_curl="https://raw.githubusercontent.com/jedetaste/james/master/icons/${icon// /%20}.png"
+  if [ "$(curl -sL -w "%{http_code}" "${icon_curl// /%20}" -o /dev/null)" == "200" ]; then
+    curl -L -o "/tmp/${icon}.png" -s "${icon_curl// /%20}"
+    if [ ! -s "/tmp/${icon}.png" ]; then
+      echo "Error: icon could not be downloaded"
+    else
+      echo "=> Add icon '${icon_curl}'"
+      /usr/local/bin/fileicon set "${path}.url" "/tmp/${icon}.png"
+      rm -f "/tmp/${icon}.png"
+    fi
+  else
+    echo "Error: HTTP error on '${icon_curl}'"
+  fi
+fi
