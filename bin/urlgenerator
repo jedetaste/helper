@@ -51,7 +51,7 @@ URL=${url}
 EOF
 
 if [ -n "${icon}" ]; then
-  icon_curl="https://raw.githubusercontent.com/jedetaste/james/master/icons/${icon// /%20}.png"
+  icon_curl="https://raw.githubusercontent.com/jedetaste/urlgenerator/master/icons/${icon// /%20}.png"
   if [ "$(curl -sL -w "%{http_code}" "${icon_curl// /%20}" -o /dev/null)" == "200" ]; then
     curl -L -o "/tmp/${icon}.png" -s "${icon_curl// /%20}"
     if [ ! -s "/tmp/${icon}.png" ]; then
