@@ -56,20 +56,26 @@ fi
 
 cat >>"${lo_ini_path}" <<EOF
 [application]
-
 version=${lo_version}
-
 env=1
-
 data=2
-
-[update]
-
-multi=0
+expectedversion_macosintel
+expected
 
 [system]
-
 open=%Programm%:${lhd_name_arg}.lhd
+
+[path]
+owntemplates=%ini%:Eigene Vorlagen
+schooldocuments=%vorlagen%:Schuldokumente
+Forms=%vorlagen%:Formulare
+main=%Dokumente%:LehrerOffice
+usersettings=%Dokumente%:LehrerOffice:Einstellungen
+
+[update]
+lastcheck_osx=$(date +%Y%m%d)
+
+[app]
 
 [userdlg]
 EOF
