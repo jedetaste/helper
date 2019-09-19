@@ -66,11 +66,16 @@ expected
 open=%Programm%:${lhd_name_arg}.lhd
 
 [path]
-owntemplates=%ini%:Eigene Vorlagen
-schooldocuments=%vorlagen%:Schuldokumente
-Forms=%vorlagen%:Formulare
 main=%Dokumente%:LehrerOffice
-usersettings=%Dokumente%:LehrerOffice:Einstellungen
+usersettings=%main%:Einstellungen
+data=%main%:Lehrerdateien
+backup=%main%:Datensicherungen
+bista=%main%:Bildungsstatistik
+owntemplates=%Dokumente%:LehrerOffice:Vorlagen
+Forms=%vorlagen%:Formulare
+schooldocuments=%vorlagen%:Schuldokumente
+userforms=%vorlagen%:Eigene Formulare
+Tools=%Anwendung%:Zusatzprogramme
 
 [update]
 lastcheck_osx=$(date +%Y%m%d)
