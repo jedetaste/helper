@@ -1,0 +1,53 @@
+#!/bin/bash
+
+prog_name=$(basename "${0}")
+
+usage() {
+  echo "Usage:"
+  echo "  ${prog_name} --serialnumber \"AB-12345678-CDE\" --authcode \"e02a82ebbefd2b\" --version 2019"
+}
+
+positional=()
+
+while [[ $# -gt 0 ]]; do
+  key="${1}"
+  case "${key}" in
+  -s | --serialnumber)
+    serialnumber="$2"
+    shift
+    shift
+    ;;
+  -a | --authcode)
+    authcode="$2"
+    shift
+    shift
+    ;;
+  -v | --version)
+    version="$2"
+    shift
+    ;;
+  *)
+    positional+=("$1")
+    shift
+    ;;
+  esac
+done
+
+set -- "${positional[@]}"
+
+if [ -z "${serialnumber}" ]; then
+  echo "Error: Missing 'serialnumber' argument" && usage && exit 1
+elif [ -z "${authcode}" ]; then
+  echo "Error: Missing 'authcode' argument" && usage && exit 1
+elif [ -z "${version}" ]; then
+  echo "Error: Missing 'version' argument" && usage && exit 1
+fi
+
+mkdir -p "/Library/Application Support/SketchUp ${version}"
+
+cat >>"/Library/Application Support/SketchUp ${version}/activation_info.txt" <<EOF
+{
+	"serial_number":"${serialnumber}",
+	"auth_code":"${authcode}"
+}
+EOF
