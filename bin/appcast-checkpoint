@@ -1,49 +1,12 @@
 #!/bin/bash
 
-  prog_name=$(basename ${0})
-  prog_version="2.0"
+if [ -z "${1}" ]; then
+  echo "Error: Please provide an URI" && exit 1
+fi
 
-  if [ -z "${1}" ]; then
-    echo "Error: Please provide an URI" && exit 1
-  fi
+appcast="${1}"
+user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36"
 
-  logging_standard() {
+checkpoint=$(curl --compressed -s -L -A "${user_agent}" "${appcast}" | sed 's|<pubDate>[^<]*</pubDate>||g' | shasum --algorithm "256" | cut -d' ' -f1)
 
-    log_file="/tmp/${prog_name}.log"
-
-    [ ! -s "${log_file}" ] && touch "${log_file}"
-
-    exec 3>&1 1>>${log_file} 2>&1
-
-  }
-
-  console() {
-    printf "%s\n" "$*" 1>&3
-  }
-
-  sgr_color() {
-
-    blk=$(tput setaf 0) # Black
-    red=$(tput setaf 1) # Red
-    grn=$(tput setaf 2) # Green
-    yel=$(tput setaf 3) # Yellow
-    blu=$(tput setaf 4) # Blue
-    mag=$(tput setaf 5) # Magenta
-    cya=$(tput setaf 6) # Cyan
-    whi=$(tput setaf 7) # White
-    def=$'\e[39m'       # Default foreground color
-
-    clr=$(tput sgr0)
-
-  }
-
-  logging_standard
-
-  sgr_color
-
-  appcast="${1}"
-  user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36"
-
-  checkpoint=$(curl --compressed -s -L -A "${user_agent}" "${appcast}" | sed 's|<pubDate>[^<]*</pubDate>||g' | shasum --algorithm "256" | cut -d' ' -f1)
-
-  console "${blu}${checkpoint}${clr}"
+echo "${checkpoint}"
