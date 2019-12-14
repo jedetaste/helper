@@ -1,7 +1,0 @@
-#!/bin/bash
-
-for warFile in /var/lib/tomcat8/webapps/*.war; do
-  webappNameWAR=$(/usr/bin/basename "${warFile}")
-  webappName="${webappNameWAR%.*}"
-  [ "${webappName}" != "probe" ] && [ "${webappName}" != "ROOT" ] && echo "${webappName}"
-done

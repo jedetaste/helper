@@ -1,7 +1,0 @@
-#!/bin/bash
-
-for warFile in /var/lib/tomcat8/webapps/*.war; do
-  webappNameWAR=$(/usr/bin/basename "${warFile}")
-  webappName="${webappNameWAR%.*}"
-  [ "${webappName}" != "probe" ] && [ "${webappName}" != "ROOT" ] && echo "${webappName}: $(/usr/bin/xmllint -format "/var/lib/tomcat8/webapps/${webappName}/WEB-INF/xml/version.xml" | grep webApplicationVersion | cut -f2 -d ">" | cut -f1 -d "<")"
-done
