@@ -1,0 +1,85 @@
+#!/bin/bash -x
+
+if [ -s "${1}" ]; then
+  dmg_path="${1}"
+  dmg_path_basename=$(basename "${dmg_path}")
+else
+  exit 1
+fi
+
+tmp_dir="/tmp/$(openssl rand -hex 8)"
+
+mkdir -p "${tmp_dir}/extract"
+mkdir -p "${tmp_dir}/mount_path"
+
+search_dmg_sla=$(hdiutil imageinfo "${dmg_path}")
+
+if [[ ${search_dmg_sla} == *"Software License Agreement: true"* ]]; then
+
+  hdiutil convert -quiet "${dmg_path}" -format UDTO -o "${tmp_dir}/${dmg_path_basename}.cdr" >/dev/null 2>&1
+
+  mount_point="${tmp_dir}/mount_point" && mkdir "${mount_point}"
+  cdr="${tmp_dir}/${dmg_path_basename}.cdr"
+  tmp_mount_point_file=$(mktemp /"${tmp_dir}"/cdr.XXX) &&
+    hdiutil attach -plist -nobrowse -readonly -mountrandom "${mount_point}" "${cdr}" >"${tmp_mount_point_file}" &&
+    loc=":system-entities:"
+  num=$(/usr/libexec/PlistBuddy -c "Print :system-entities:" "${tmp_mount_point_file}" | grep -c Dict)
+
+  for i in $(seq 0 $((num - 1))); do
+
+    loc=":system-entities:${i}:mount-point"
+    loc_dev_entry=":system-entities:${i}:dev-entry"
+    volume_name=$(/usr/libexec/PlistBuddy -c "Print ${loc}" "${tmp_mount_point_file}" 2>/dev/null)
+    volume_name_dev_entry=$(/usr/libexec/PlistBuddy -c "Print ${loc_dev_entry}" "${tmp_mount_point_file}" 2>/dev/null)
+
+    if [ -n "${volume_name}" ] && ! echo "${volume_name}" | grep -q "Does Not Exist"; then
+      break
+    fi
+
+  done
+
+elif [[ ${search_dmg_sla} == *"Software License Agreement: false"* ]]; then
+
+  mount_point="${tmp_dir}/mount_point" && mkdir "${mount_point}"
+  dmg="${dmg_path}"
+  tmp_mount_point_file=$(mktemp /"${tmp_dir}"/dmg.XXX) &&
+    hdiutil attach -plist -nobrowse -readonly -mountrandom "${mount_point}" "${dmg}" >"${tmp_mount_point_file}" &&
+    loc=":system-entities:"
+  num=$(/usr/libexec/PlistBuddy -c "Print :system-entities:" "${tmp_mount_point_file}" | grep -c Dict)
+
+  for i in $(seq 0 $((num - 1))); do
+
+    loc=":system-entities:${i}:mount-point"
+    loc_dev_entry=":system-entities:${i}:dev-entry"
+    volume_name=$(/usr/libexec/PlistBuddy -c "Print ${loc}" "${tmp_mount_point_file}" 2>/dev/null)
+    volume_name_dev_entry=$(/usr/libexec/PlistBuddy -c "Print ${loc_dev_entry}" "${tmp_mount_point_file}" 2>/dev/null)
+
+    if [ -n "${volume_name}" ] && ! echo "${volume_name}" | grep -q "Does Not Exist"; then
+      break
+    fi
+
+  done
+
+fi
+
+cd "${volume_name}" && find . >"${tmp_dir}/${dmg_path_basename}.list"
+
+mkbom -s -i "${tmp_dir}/${dmg_path_basename}.list" "${tmp_dir}/${dmg_path_basename}.bom"
+
+ditto --bom "${tmp_dir}/${dmg_path_basename}.bom" "${volume_name}" "${tmp_dir}/extract"
+
+echo "${tmp_dir}/extract"
+
+if [ -n "${volume_name}" ]; then
+  diskutil eject "${volume_name}" >/dev/null 2>&1
+  until [ ! -d "${volume_name}" ]; do
+    diskutil unmount force "${volume_name}" >/dev/null 2>&1
+  done
+fi
+
+if [ -n "${volume_name_dev_entry}" ]; then
+  diskutil eject "${volume_name_dev_entry}" >/dev/null 2>&1
+  until [ ! -d "${volume_name_dev_entry}" ]; do
+    diskutil unmount force "${volume_name_dev_entry}" >/dev/null 2>&1
+  done
+fi
