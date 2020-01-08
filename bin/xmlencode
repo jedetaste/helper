@@ -1,0 +1,13 @@
+#!/bin/bash
+
+formatted_xml="${1}"
+
+if [ -n "${formatted_xml}" ]; then
+
+  encoded_xml=$(xmllint --noblanks "${formatted_xml}" | sed -e 's/>/\&gt;/g' -e 's/</\&lt;/g')
+
+  echo "${encoded_xml}"
+
+else
+  echo "Error: Empty value"
+fi
