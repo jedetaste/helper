@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ -z "${1}" ]; then
+  echo "Error: Missing language code" && exit 1
+else
+  language_code="${1}"
+fi
+
+while ! pgrep -x "Dock" >/dev/null; do
+  sleep 1
+done
+
+current_user=$(echo "show State:/Users/ConsoleUser" | scutil | awk '/Name :/ && ! /loginwindow/ { print $3 }')
+
+while [[ "${current_user}" == "loginwindow" || "${current_user}" == "_mbsetupuser" || "${current_user}" == "root" ]]; do
+  echo "=> Current user still in login limbo: ${current_user}..."
+  sleep 1
+  current_user=$(echo "show State:/Users/ConsoleUser" | scutil | awk '/Name :/ && ! /loginwindow/ { print $3 }')
+done
+
+echo "=> Change language for user '${current_user}' to '${language_code}'"
+
+su -l "$(/usr/local/bin/currentuser)" -c "defaults write NSGlobalDomain AppleLanguages \"(${language_code})\""
+
+su -l "$(/usr/local/bin/currentuser)" -c "killall cfprefsd"
+su -l "$(/usr/local/bin/currentuser)" -c "killall Finder"
