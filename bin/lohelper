@@ -4,7 +4,7 @@ prog_name=$(basename "${0}")
 prog_version="1.1"
 
 if [ ! -s "/Applications/LehrerOffice/LehrerOffice.app" ]; then
-  echo "Warning: LehrerOffice is not installed" && exit 0
+  echo "Error: LehrerOffice is not installed" && exit 0
 fi
 
 lo_ini_path="/Applications/LehrerOffice/LehrerOffice.ini"
