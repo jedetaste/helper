@@ -1,0 +1,12 @@
+#!/bin/bash
+
+jamf_pro_url="${1}"
+
+mkdir -p "/usr/local/jamf/bin/"
+mkdir -p "/usr/local/bin/"
+curl -s "${jamf_pro_url}/bin/jamf" -o "/usr/local/jamf/bin/jamf"
+chmod +x "/usr/local/jamf/bin/jamf"
+ln -s "/usr/local/jamf/bin/jamf" "/usr/local/bin/jamf"
+
+/usr/local/bin/jamf createConf -url "${jamf_pro_url}" -verifySSLCert "always_except_during_enrollment"
+/usr/local/bin/jamf enroll -prompt
