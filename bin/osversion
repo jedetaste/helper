@@ -46,6 +46,8 @@ if [ "${version}" == "name" ]; then
     echo "macOS Mojave"
   elif [ "${minor}" -eq 15 ]; then
     echo "macOS Catalina"
+  elif [ "${minor}" -eq 16 ]; then
+    echo "macOS Big Sur"
   else
     echo "Error: Unknown version" && exit 1
   fi
@@ -71,6 +73,8 @@ elif [ "${version}" == "major" ]; then
   elif [ "${minor}" -eq 14 ]; then
     echo "${major}"
   elif [ "${minor}" -eq 15 ]; then
+    echo "${major}"
+  elif [ "${minor}" -eq 16 ]; then
     echo "${major}"
   else
     echo "Error: Unknown version" && exit 1
@@ -98,6 +102,8 @@ elif [ "${version}" == "minor" ]; then
     echo "${minor}"
   elif [ "${minor}" -eq 15 ]; then
     echo "${minor}"
+  elif [ "${minor}" -eq 16 ]; then
+    echo "${minor}"
   else
     echo "Error: Unknown version" && exit 1
   fi
@@ -124,6 +130,8 @@ elif [ "${version}" == "revision" ]; then
     echo "${revision}"
   elif [ "${minor}" -eq 15 ]; then
     echo "${revision}"
+  elif [ "${minor}" -eq 16 ]; then
+    echo "${revision}"
   else
     echo "Error: Unknown version" && exit 1
   fi
@@ -149,6 +157,8 @@ elif [ -z "${version}" ]; then
   elif [ "${minor}" -eq 14 ]; then
     echo "${major}.${minor}.${revision}"
   elif [ "${minor}" -eq 15 ]; then
+    echo "${major}.${minor}.${revision}"
+  elif [ "${minor}" -eq 16 ]; then
     echo "${major}.${minor}.${revision}"
   else
     echo "Error: Unknown version" && exit 1
