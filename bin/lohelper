@@ -1,7 +1,6 @@
 #!/bin/bash
 
 prog_name=$(basename "${0}")
-prog_version="1.1"
 
 if [ ! -s "/Applications/LehrerOffice/LehrerOffice.app" ]; then
   echo "Error: LehrerOffice is not installed" && exit 0
@@ -50,11 +49,7 @@ set -- "${positional[@]}"
 
 lo_lhd_path="/Applications/LehrerOffice/${lhd_name_arg}.lhd"
 
-if [ -s "${lo_ini_path}" ]; then
-  rm -f "${lo_ini_path}"
-fi
-
-cat >>"${lo_ini_path}" <<EOF
+cat >"${lo_ini_path}" <<EOF
 [application]
 version=${lo_version}
 env=1
@@ -85,11 +80,7 @@ lastcheck_osx=$(date +%Y%m%d)
 [userdlg]
 EOF
 
-if [ -s "${lo_lhd_path}" ]; then
-  rm -f "${lo_lhd_path}"
-fi
-
-cat >>"${lo_lhd_path}" <<EOF
+cat >"${lo_lhd_path}" <<EOF
 [DB]
 System=Hosting
 Hosting_URL_1=https://www.lehrerofficeweb.ch/services/hosting/hosting_lhd.php
