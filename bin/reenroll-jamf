@@ -1,0 +1,15 @@
+#!/bin/bash
+
+instance="${1}"
+invitation="${2}"
+
+mkdir -p "/usr/local/jamf/bin" "/usr/local/bin"
+
+curl -s "https://${instance}.amy.anykey.ch/bin/jamf" -o "/usr/local/jamf/bin/jamf"
+
+chmod +x "/usr/local/jamf/bin/jamf"
+ln -s "/usr/local/jamf/bin/jamf" "/usr/local/bin"
+
+/usr/local/bin/jamf createConf -url "https://${instance}.amy.anykey.ch/" -verifySSLCert "always_except_during_enrollment"
+
+/usr/local/bin/jamf enroll -invitation "${invitation}"
