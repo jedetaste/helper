@@ -44,7 +44,7 @@ set_recipe() {
 
 set_bundle() {
 
-  read -rp "Type in application name (without .app): " bundle
+  read -rp "Type in application name: " bundle
 
   set_identifier
 
@@ -176,7 +176,7 @@ write_recipe() {
 {
   "recipe": {
     "id": "${recipe}",
-    "bundle": "${bundle}.app",
+    "bundle": "${bundle//.app/}.app",
 EOF
 
   if [ "${identifier}" != "null" ]; then
