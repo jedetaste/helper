@@ -1,16 +1,13 @@
 #!/bin/bash
-  
-  readonly progName=$(/usr/bin/basename ${0})
-  readonly progVersion="1.0"
-  
-  urlArg="${1}"
-  dirArg="${2}"
-  nameArg="${3}"
-  
-  if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]; then
-    echo "Error: Invalid argument" && exit 1
-  fi
-  
-  /usr/libexec/PlistBuddy -c "Add :URL string ${urlArg}" "/${dirArg}/${nameArg}.plist" > /dev/null 2>&1
-  
-  /bin/mv "/${dirArg}/${nameArg}.plist" "/${dirArg}/${nameArg}.webloc"
+
+urlArg="${1}"
+dirArg="${2}"
+nameArg="${3}"
+
+if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]; then
+  echo "Error: Invalid argument" && exit 1
+fi
+
+/usr/libexec/PlistBuddy -c "Add :URL string ${urlArg}" "/${dirArg}/${nameArg}.plist" >/dev/null 2>&1
+
+/bin/mv "/${dirArg}/${nameArg}.plist" "/${dirArg}/${nameArg}.webloc"
