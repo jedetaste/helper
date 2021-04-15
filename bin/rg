@@ -90,18 +90,6 @@ set_version() {
     version="null"
   fi
 
-  set_build
-
-}
-
-set_build() {
-
-  read -rp "Type in the current build: " build
-
-  if [ -z "${build}" ]; then
-    build="null"
-  fi
-
   set_directory
 
 }
@@ -147,7 +135,6 @@ recipe_preview() {
   echo "Download: ${download}"
   echo "Checksum: ${sha256}"
   echo "Version: ${version}"
-  echo "Build: ${build}"
   echo "Directory: ${dir}/${bundle}.app"
   echo "Symlink: ${symlink}"
   echo "Website: ${web}"
@@ -217,16 +204,6 @@ EOF
   else
     cat >>"${json}" <<EOF
     "version": null,
-EOF
-  fi
-
-  if [ "${build}" != "null" ]; then
-    cat >>"${json}" <<EOF
-    "build": "${build}",
-EOF
-  else
-    cat >>"${json}" <<EOF
-    "build": null,
 EOF
   fi
 
