@@ -1,11 +1,9 @@
 #!/bin/bash
 
-adam_id="${1}"
-adam_id="${adam_id//id/}"
 country_code="ch"
 
-if [ -z "${adam_id}" ]; then
+if [ -z "${1//id/}" ]; then
   echo "Error: Please provide ADAM ID" && exit 1
 fi
 
-curl -s -o - "https://itunes.apple.com/lookup?id=${adam_id}&country=${country_code}" | jq -c
+curl -s -o - "https://itunes.apple.com/lookup?id=${1//id/}&country=${country_code}" | jq -c
