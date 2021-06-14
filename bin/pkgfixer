@@ -1,6 +1,6 @@
 #!/bin/bash
 
-readonly prog_name=$(basename "${0}")
+prog_name=$(basename "${0}")
 
 string=$(openssl rand -hex 5)
 mkdir -p "$(getconf DARWIN_USER_TEMP_DIR)${string}"
