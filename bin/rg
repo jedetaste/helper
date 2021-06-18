@@ -1,7 +1,7 @@
 #!/bin/bash
 
 prog_name=$(basename "${0}")
-prog_version="3.4"
+prog_version="3.5"
 
 start_application() {
 
@@ -44,7 +44,7 @@ set_recipe() {
 
 set_bundle() {
 
-  read -rp "Type in application name: " bundle
+  read -rp "Type in application name (e.g. Firefox.app): " bundle
 
   set_identifier
 
@@ -128,23 +128,24 @@ set_web() {
 
 recipe_preview() {
 
+  echo "Preview:"
   echo
-  echo "ID: ${recipe}"
-  echo "Bundle: ${bundle}.app"
-  echo "Identifier: ${identifier}"
-  echo "Download: ${download}"
-  echo "Checksum: ${sha256}"
-  echo "Version: ${version}"
-  echo "Directory: ${dir}/${bundle}.app"
-  echo "Symlink: ${symlink}"
-  echo "Website: ${web}"
+  echo "id: ${recipe}"
+  echo "bundle: ${bundle}.app"
+  echo "identifier: ${identifier}"
+  echo "download: ${download}"
+  echo "sha256: ${sha256}"
+  echo "version: ${version}"
+  echo "dir: ${dir}/${bundle//.app/}.app"
+  echo "symlink: ${symlink}"
+  echo "web: ${web}"
   echo
-  echo "Recipe Ok? [yes/no]"
+  echo "Ok? [yes/no]"
   echo
 
   yes_no
 
-  if [ "${yes_no}" == "yes" ]; then
+  if [ "${yes_no}" = "yes" ]; then
     write_recipe
   else
     clear
@@ -155,92 +156,55 @@ recipe_preview() {
 
 write_recipe() {
 
-  current_user=$(scutil <<<"show State:/Users/ConsoleUser" | awk '/Name :/ && ! /loginwindow/ { print $3 }')
+  recipe_path="${HOME}/Desktop/${recipe}.json" && echo "{}" >"${recipe_path}"
 
-  json="/Users/${current_user}/Desktop/${recipe}.json" && rm -f "${json}" && touch "${json}"
+  jq --sort-keys --arg id "${recipe}" '.recipe.id = $id' "${recipe_path}" | sponge "${recipe_path}"
 
-  cat >>"${json}" <<EOF
-{
-  "recipe": {
-    "id": "${recipe}",
-    "bundle": "${bundle//.app/}.app",
-EOF
+  jq --sort-keys --arg bundle "${bundle//.app/}.app" '.recipe.bundle = $bundle' "${recipe_path}" | sponge "${recipe_path}"
 
-  if [ "${identifier}" != "null" ]; then
-    cat >>"${json}" <<EOF
-    "identifier": "${identifier}",
-EOF
+  if [ ! "${identifier}" = "null" ]; then
+    jq --sort-keys --arg identifier "${identifier}" '.recipe.identifier = $identifier' "${recipe_path}" | sponge "${recipe_path}"
   else
-    cat >>"${json}" <<EOF
-    "identifier": null,
-EOF
+    jq --sort-keys '.recipe.identifier = null' "${recipe_path}" | sponge "${recipe_path}"
   fi
 
-  cat >>"${json}" <<EOF
-    "download": "${download}",
-EOF
+  jq --sort-keys --arg download "${download}" '.recipe.download = $download' "${recipe_path}" | sponge "${recipe_path}"
 
-  if [ "${sha256}" != "null" ]; then
-    cat >>"${json}" <<EOF
-    "sha256": "${sha256}",
-EOF
+  if [ ! "${sha256}" = "null" ]; then
+    jq --sort-keys --arg sha256 "${sha256}" '.recipe.sha256 = $sha256' "${recipe_path}" | sponge "${recipe_path}"
   else
-    cat >>"${json}" <<EOF
-    "sha256": null,
-EOF
+    jq --sort-keys '.recipe.sha256 = null' "${recipe_path}" | sponge "${recipe_path}"
   fi
 
-  cat >>"${json}" <<EOF
-    "appcast": {
-      "url": null,
-      "checkpoint": null
-    },
-EOF
+  jq --sort-keys '.recipe.processes = []' "${recipe_path}" | sponge "${recipe_path}"
 
-  if [ "${version}" != "null" ]; then
-    cat >>"${json}" <<EOF
-    "version": "${version}",
-EOF
+  jq --sort-keys '.recipe.appcast.url = null' "${recipe_path}" | sponge "${recipe_path}"
+
+  jq --sort-keys '.recipe.appcast.checkpoint = null' "${recipe_path}" | sponge "${recipe_path}"
+
+  if [ ! "${version}" = "null" ]; then
+    jq --sort-keys --arg version "${version}" '.recipe.version = $version' "${recipe_path}" | sponge "${recipe_path}"
   else
-    cat >>"${json}" <<EOF
-    "version": null,
-EOF
+    jq --sort-keys '.recipe.version = null' "${recipe_path}" | sponge "${recipe_path}"
   fi
 
-  cat >>"${json}" <<EOF
-    "dir": "${dir}",
-EOF
-
-  if [ "${symlink}" != "null" ]; then
-    cat >>"${json}" <<EOF
-    "symlink": "${symlink}",
-EOF
+  if [ ! "${symlink}" = "null" ]; then
+    jq --sort-keys --arg symlink "${symlink}" '.recipe.symlink = $symlink' "${recipe_path}" | sponge "${recipe_path}"
   else
-    cat >>"${json}" <<EOF
-    "symlink": null,
-EOF
+    jq --sort-keys '.recipe.symlink = null' "${recipe_path}" | sponge "${recipe_path}"
   fi
 
-  if [ "${web}" != "null" ]; then
-    cat >>"${json}" <<EOF
-    "web": "${web}"
-EOF
+  if [ ! "${web}" = "null" ]; then
+    jq --sort-keys --arg web "${web}" '.recipe.web = $web' "${recipe_path}" | sponge "${recipe_path}"
   else
-    cat >>"${json}" <<EOF
-    "web": null
-EOF
+    jq --sort-keys '.recipe.web = null' "${recipe_path}" | sponge "${recipe_path}"
   fi
-
-  cat >>"${json}" <<EOF
-  }
-}
-EOF
 
   echo
   echo "The recipe was saved on your desktop as '${recipe}.json'"
   echo
 
-  open -R "/Users/${current_user}/Desktop/${recipe}.json"
+  open -R "${recipe_path}"
 
 }
 
