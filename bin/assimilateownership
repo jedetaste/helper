@@ -27,4 +27,5 @@ done
 
 set -- "${positional[@]}"
 
-chown -R "$(/usr/local/bin/currentuser)":staff "${path}"
+chown -R :staff "${path}"
+chmod -R 775 "${path}"
