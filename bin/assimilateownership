@@ -28,4 +28,4 @@ done
 set -- "${positional[@]}"
 
 chown -R :staff "${path}"
-chmod -R 775 "${path}"
+chmod -R 755 "${path}"
