@@ -27,5 +27,7 @@ done
 
 set -- "${positional[@]}"
 
-chown -R :staff "${path}"
+currentuser="$(scutil <<<"show State:/Users/ConsoleUser" | awk '/Name :/ && ! /loginwindow/ { print $3 }')"
+
+chown -R "${currentuser}":staff "${path}"
 chmod -R 755 "${path}"
