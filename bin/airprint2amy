@@ -1,0 +1,82 @@
+#!/bin/bash
+
+prog_name=$(basename "${0}")
+
+usage() {
+
+  echo "Usage: ${prog_name} [options] argument"
+  echo "Options:"
+  echo "  -i, --ip        IP adress of printer"
+  echo "  -n, --name      Name of printer"
+  echo "  -l, --location  Location of printer"
+
+}
+
+positional=()
+
+while [[ $# -gt 0 ]]; do
+  key="${1}"
+  case "${key}" in
+  -i | --ip)
+    ip="${2}"
+    shift
+    ;;
+  -n | --name)
+    name="${2}"
+    shift
+    ;;
+  -l | --location)
+    location="${2}"
+    shift
+    ;;
+  *)
+    positional+=("${1}")
+    shift
+    ;;
+  esac
+done
+
+set -- "${positional[@]}"
+
+if [ -z "${ip}" ]; then
+  echo "${prog_name}: Error: missing argument ${ip}" && usage && exit 1
+elif [ -z "${name}" ]; then
+  echo "${prog_name}: Error: missing argument ${name}" && usage && exit 1
+elif [ -z "${location}" ]; then
+  echo "${prog_name}: Error: missing argument ${location}" && usage && exit 1
+fi
+
+default_air_print_ppd="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/AirPrint.ppd"
+
+# Check if printer is available
+
+if ! nc -G 2 -z "${ip}" 631 2 &>/dev/null; then
+  echo "connection error" && exit 1
+fi
+
+# Create custom PPD
+
+ppd="/tmp/${name}.ppd"
+
+/System/Library/Printers/Libraries/ipp2ppd "ipp://${ip}" "${default_air_print_ppd}" >"${ppd}"
+
+# Grab icon from printer
+
+icon="/Library/Printers/Icons/${name}.icns"
+
+printer_icon="$(/usr/bin/ipptool -tv "ipp://${ip}/ipp/print" get-printer-attributes.test | awk -F, '/printer-icons/ {print $NF}')"
+
+curl -skL "${printer_icon}" -o "${icon}"
+
+echo "*APPrinterIconPath: \"${icon}\"" >>"${ppd}"
+
+# Install printer
+
+echo "Summary:"
+echo "  Name:        ${name}"
+echo "  Location:    ${location}"
+echo "  IP address:  ${ip}"
+echo "  PPD:         ${ppd}"
+echo "  Icon:        ${icon}"
+
+lpadmin -p "${name}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o printer-is-shared=false
