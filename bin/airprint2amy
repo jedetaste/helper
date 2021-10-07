@@ -79,4 +79,4 @@ echo "  IP address:  ${ip}"
 echo "  PPD:         ${ppd}"
 echo "  Icon:        ${icon}"
 
-lpadmin -p "${name}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o printer-is-shared=false
+lpadmin -p "${name}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o ColorModel=Gray -o printer-is-shared=false
