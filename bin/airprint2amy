@@ -51,7 +51,7 @@ default_air_print_ppd="/System/Library/Frameworks/ApplicationServices.framework/
 # Check if printer is available
 
 if ! nc -G 2 -z "${ip}" 631 2 &>/dev/null; then
-  echo "connection error" && exit 1
+  echo "Error: Connection to ${ip}" && exit 1
 fi
 
 # Create custom PPD
