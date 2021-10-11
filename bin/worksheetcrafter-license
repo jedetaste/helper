@@ -1,0 +1,63 @@
+#!/bin/bash
+
+prog_name=$(basename "${0}")
+
+usage() {
+
+  echo "Usage: ${prog_name} [options] argument"
+  echo "Options:"
+  echo "  -n, --name   Display Name"
+  echo "  -k, --key    Key"
+  echo "  -u, --user   User"
+
+}
+
+positional=()
+
+while [[ $# -gt 0 ]]; do
+  optional="${1}"
+  case "${optional}" in
+  -n | --name)
+    name="${2}"
+    shift
+    ;;
+  -k | --key)
+    key="${2}"
+    shift
+    ;;
+  -u | --user)
+    user="${2}"
+    shift
+    ;;
+  *)
+    positional+=("${1}")
+    shift
+    ;;
+  esac
+done
+
+set -- "${positional[@]}"
+
+if [ -z "${name}" ]; then
+  echo "${prog_name}: Error: missing argument ${name}" && usage && exit 1
+elif [ -z "${key}" ]; then
+  echo "${prog_name}: Error: missing argument ${key}" && usage && exit 1
+elif [ -z "${user}" ]; then
+  echo "${prog_name}: Error: missing argument ${user}" && usage && exit 1
+fi
+
+if [ -n "$(/usr/local/bin/currentuser)" ]; then
+
+  echo "Set WorksheetCrafter license data:"
+  echo "  Local User:            $(/usr/local/bin/currentuser)"
+  echo "  License Display Name:  ${name}"
+  echo "  License Key:           ${key}"
+  echo "  License User:          ${user}"
+
+  su -l "$(/usr/local/bin/currentuser)" -c "defaults write 'com.schoolcraft.Worksheet Crafter' DisplayName -string '${name}'"
+  su -l "$(/usr/local/bin/currentuser)" -c "defaults write 'com.schoolcraft.Worksheet Crafter' Key -string '${key}'"
+  su -l "$(/usr/local/bin/currentuser)" -c "defaults write 'com.schoolcraft.Worksheet Crafter' User -string '${user}'"
+
+else
+  echo "Error: ${prog_name}: No user logged in"
+fi
