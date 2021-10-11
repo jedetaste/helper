@@ -1,0 +1,30 @@
+#!/bin/bash -x
+
+prog_name=$(basename "${0}")
+
+app="${1}"
+
+if [ -d "${app}" ]; then
+
+  app_basename="$(basename "${app%/}")"
+
+  echo "app_basename: ${app_basename}"
+
+  icon_name="$(defaults read "${app%/}/Contents/Info.plist" CFBundleIconFile)"
+
+  echo "icon_name: ${icon_name}"
+
+  icon_path=$(find "${app%/}/Contents/Resources" -name "${icon_name}*" -print -quit)
+
+  echo "icon_path: ${icon_path}"
+
+  if [ -s "${icon_path}" ]; then
+    echo "export ${icon_path} to ${HOME}/james/icons/${app_basename//.app/}.png"
+    sips -z "512" "512" "${icon_path}" --out "${HOME}/james/icons/${app_basename//.app/}.png" --setProperty format png -i
+  else
+    echo "${prog_name}: ${icon_path}: No such file or directory"
+  fi
+
+else
+  echo "${prog_name}: ${app}: No such file or directory"
+fi
