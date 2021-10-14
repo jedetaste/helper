@@ -8,6 +8,7 @@ usage() {
   echo "Options:"
   echo "  -i, --ip        IP adress of printer"
   echo "  -n, --name      Name of printer"
+  echo "  -c, --cups      CUPS name of printer"
   echo "  -l, --location  Location of printer"
 
 }
@@ -23,6 +24,10 @@ while [[ $# -gt 0 ]]; do
     ;;
   -n | --name)
     name="${2}"
+    shift
+    ;;
+  -c | --cups)
+    cups="${2}"
     shift
     ;;
   -l | --location)
@@ -44,6 +49,8 @@ elif [ -z "${name}" ]; then
   echo "${prog_name}: Error: missing argument ${name}" && usage && exit 1
 elif [ -z "${location}" ]; then
   echo "${prog_name}: Error: missing argument ${location}" && usage && exit 1
+elif [ -z "${cups}" ]; then
+  echo "${prog_name}: Error: missing argument ${cups}" && usage && exit 1
 fi
 
 default_air_print_ppd="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/AirPrint.ppd"
@@ -62,7 +69,7 @@ ppd="/tmp/${name}.ppd"
 
 # Grab icon from printer
 
-icon="/Library/Printers/Icons/${name}.icns"
+icon="/Library/Printers/Icons/${cups}.icns"
 
 printer_icon="$(/usr/bin/ipptool -tv "ipp://${ip}/ipp/print" get-printer-attributes.test | awk -F, '/printer-icons/ {print $NF}')"
 
@@ -79,4 +86,4 @@ echo "  IP address:  ${ip}"
 echo "  PPD:         ${ppd}"
 echo "  Icon:        ${icon}"
 
-lpadmin -p "${name}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o ColorModel=Gray -o printer-is-shared=false
+lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o ColorModel=Gray -o printer-is-shared=false
