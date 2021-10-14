@@ -63,7 +63,7 @@ fi
 
 # Create custom PPD
 
-ppd="/tmp/${name}.ppd"
+ppd="/tmp/${cups}.ppd"
 
 /System/Library/Printers/Libraries/ipp2ppd "ipp://${ip}" "${default_air_print_ppd}" >"${ppd}"
 
@@ -80,10 +80,11 @@ echo "*APPrinterIconPath: \"${icon}\"" >>"${ppd}"
 # Install printer
 
 echo "Summary:"
-echo "  Name:        ${name}"
-echo "  Location:    ${location}"
-echo "  IP address:  ${ip}"
-echo "  PPD:         ${ppd}"
-echo "  Icon:        ${icon}"
+echo "  Display Name: ${name}"
+echo "  CUPS Name:    ${name}"
+echo "  Location:     ${location}"
+echo "  IP address:   ${ip}"
+echo "  PPD:          ${ppd}"
+echo "  Icon:         ${icon}"
 
 lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o ColorModel=Gray -o printer-is-shared=false
