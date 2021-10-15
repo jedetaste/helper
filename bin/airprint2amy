@@ -81,7 +81,7 @@ echo "*APPrinterIconPath: \"${icon}\"" >>"${ppd}"
 
 echo "Summary:"
 echo "  Display Name: ${name}"
-echo "  CUPS Name:    ${name}"
+echo "  CUPS Name:    ${cups}"
 echo "  Location:     ${location}"
 echo "  IP address:   ${ip}"
 echo "  PPD:          ${ppd}"
