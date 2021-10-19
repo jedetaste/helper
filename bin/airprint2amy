@@ -10,38 +10,22 @@ usage() {
   echo "  -n, --name      Name of printer"
   echo "  -c, --cups      CUPS name of printer"
   echo "  -l, --location  Location of printer"
+  echo "  -o, --option    One or more options"
 
 }
 
-positional=()
-
-while [[ $# -gt 0 ]]; do
-  key="${1}"
-  case "${key}" in
-  -i | --ip)
-    ip="${2}"
-    shift
-    ;;
-  -n | --name)
-    name="${2}"
-    shift
-    ;;
-  -c | --cups)
-    cups="${2}"
-    shift
-    ;;
-  -l | --location)
-    location="${2}"
-    shift
-    ;;
-  *)
-    positional+=("${1}")
-    shift
-    ;;
+while getopts ":i:n:c:l:o:" opt; do
+  case "${opt}" in
+  i) ip="${OPTARG}" ;;
+  n) name="${OPTARG}" ;;
+  c) cups="${OPTARG}" ;;
+  l) location="${OPTARG}" ;;
+  o) options+=("${OPTARG}") ;;
+  *) usage && exit 1 ;;
   esac
 done
 
-set -- "${positional[@]}"
+shift $((OPTIND - 1))
 
 if [ -z "${ip}" ]; then
   echo "${prog_name}: Error: missing argument ${ip}" && usage && exit 1
@@ -86,5 +70,6 @@ echo "  Location:     ${location}"
 echo "  IP address:   ${ip}"
 echo "  PPD:          ${ppd}"
 echo "  Icon:         ${icon}"
+echo "  Options:      ${options[*]}"
 
-lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o ColorModel=Gray -o printer-is-shared=false
+lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" "$(for item in "${options[@]}"; do echo "-o ${item}"; done)" -o printer-is-shared=false
