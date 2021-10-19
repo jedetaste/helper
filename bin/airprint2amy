@@ -72,4 +72,8 @@ echo "  PPD:          ${ppd}"
 echo "  Icon:         ${icon}"
 echo "  Options:      ${options[*]}"
 
-lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" "$(for item in "${options[@]}"; do echo "-o ${item}"; done)" -o printer-is-shared=false
+if [ -z "${options[*]}" ]; then
+  lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o printer-is-shared=false
+else
+  lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" "$(for item in "${options[@]}"; do echo "-o ${item}"; done)" -o printer-is-shared=false
+fi
