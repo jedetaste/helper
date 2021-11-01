@@ -31,8 +31,6 @@ if [ -z "${ip}" ]; then
   echo "${prog_name}: Error: missing argument ${ip}" && usage && exit 1
 elif [ -z "${name}" ]; then
   echo "${prog_name}: Error: missing argument ${name}" && usage && exit 1
-elif [ -z "${location}" ]; then
-  echo "${prog_name}: Error: missing argument ${location}" && usage && exit 1
 elif [ -z "${cups}" ]; then
   echo "${prog_name}: Error: missing argument ${cups}" && usage && exit 1
 fi
