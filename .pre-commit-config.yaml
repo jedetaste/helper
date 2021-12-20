@@ -1,4 +1,4 @@
-exclude: ^microsoft-office-unlicense-tool
+exclude: ^bin/microsoft-office-unlicense-tool
 repos:
 - repo: https://github.com/jumanjihouse/pre-commit-hooks
   rev: 2.1.5
