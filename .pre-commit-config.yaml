@@ -3,7 +3,7 @@ repos:
   rev: 2.1.5
   hooks:
   - id: shellcheck
-    exclude: ^microsoft-office-unlicense-tool
+    exclude: Library/microsoft-office-unlicense-tool
   - id: shfmt
     args: [-i 2]
 - repo: https://github.com/pre-commit/pre-commit-hooks
