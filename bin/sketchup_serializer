@@ -45,7 +45,7 @@ fi
 
 mkdir -p "/Library/Application Support/SketchUp ${version}"
 
-cat >>"/Library/Application Support/SketchUp ${version}/activation_info.txt" <<EOF
+cat >"/Library/Application Support/SketchUp ${version}/activation_info.txt" <<EOF
 {
 	"serial_number":"${serialnumber}",
 	"auth_code":"${authcode}"
