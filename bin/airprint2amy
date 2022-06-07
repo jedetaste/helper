@@ -148,7 +148,7 @@ main() {
   # Check if printer is available
 
   if ! nc -G 2 -z "${_arg_ip}" 631 2 &>/dev/null; then
-    echo "Error: Connection to ${_arg_ip}" && exit 1
+    echo "Error: Connection to ${_arg_ip} failed" && exit 1
   fi
 
   # Create custom PPD
