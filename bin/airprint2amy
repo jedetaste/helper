@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# ARG_OPTIONAL_SINGLE([ip], [i], [optional argument help msg])
+# ARG_OPTIONAL_SINGLE([name], [n], [optional argument help msg])
+# ARG_OPTIONAL_SINGLE([cups], [c], [optional argument help msg])
+# ARG_OPTIONAL_SINGLE([location], [l], [optional argument help msg])
+# ARG_OPTIONAL_REPEATED([options], [o], [optional argument help msg])
+# ARG_HELP([The general script's help msg])
+# ARG_VERSION([echo "${version}"])
+# ARGBASH_GO
+
 die() {
 
   local _ret="${2:-1}"
