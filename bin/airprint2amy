@@ -1,77 +1,199 @@
 #!/bin/bash
 
-prog_name=$(basename "${0}")
+die() {
 
-usage() {
-
-  echo "Usage: ${prog_name} [options] argument"
-  echo "Options:"
-  echo "  -i, --ip        IP adress of printer"
-  echo "  -n, --name      Name of printer"
-  echo "  -c, --cups      CUPS name of printer"
-  echo "  -l, --location  Location of printer"
-  echo "  -o, --option    One or more options"
+  local _ret="${2:-1}"
+  test "${_PRINT_HELP:-no}" = yes && print_help >&2
+  echo "$1" >&2
+  exit "${_ret}"
 
 }
 
-while getopts ":i:n:c:l:o:" opt; do
-  case "${opt}" in
-  i) ip="${OPTARG}" ;;
-  n) name="${OPTARG}" ;;
-  c) cups="${OPTARG}" ;;
-  l) location="${OPTARG}" ;;
-  o) options+=("${OPTARG}") ;;
-  *) usage && exit 1 ;;
-  esac
-done
+begins_with_short_option() {
 
-shift $((OPTIND - 1))
+  local first_option all_short_options='inclohv'
+  first_option="${1:0:1}"
+  test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
 
-if [ -z "${ip}" ]; then
-  echo "${prog_name}: Error: missing argument ${ip}" && usage && exit 1
-elif [ -z "${name}" ]; then
-  echo "${prog_name}: Error: missing argument ${name}" && usage && exit 1
-elif [ -z "${cups}" ]; then
-  echo "${prog_name}: Error: missing argument ${cups}" && usage && exit 1
-fi
+}
 
-default_air_print_ppd="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/AirPrint.ppd"
+# THE DEFAULTS INITIALIZATION - OPTIONALS
 
-# Check if printer is available
+_arg_ip=
+_arg_name=
+_arg_cups=
+_arg_location=
+_arg_options=()
 
-if ! nc -G 2 -z "${ip}" 631 2 &>/dev/null; then
-  echo "Error: Connection to ${ip}" && exit 1
-fi
+print_help() {
 
-# Create custom PPD
+  cat <<EOF
+Usage: ${prog_name} [options]
 
-ppd="/tmp/${cups}.ppd"
+Options:
+  -i, --ip        IP adress or DNS name of printer
+  -n, --name      Name of printer
+  -c, --cups      CUPS name of printer
+  -l, --location  Location of printer
+  -o, --option    One or more options
+  -h, --help      Show this help page
+  -v, --version   Show version
+EOF
 
-/System/Library/Printers/Libraries/ipp2ppd "ipp://${ip}" "${default_air_print_ppd}" >"${ppd}"
+}
 
-# Grab icon from printer
+parse_commandline() {
 
-icon="/Library/Printers/Icons/${cups}.icns"
+  while test $# -gt 0; do
+    _key="$1"
+    case "$_key" in
+    -i | --ip)
+      test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+      _arg_ip="$2"
+      shift
+      ;;
+    --ip=*)
+      _arg_ip="${_key##--ip=}"
+      ;;
+    -i*)
+      _arg_ip="${_key##-i}"
+      ;;
+    -n | --name)
+      test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+      _arg_name="$2"
+      shift
+      ;;
+    --name=*)
+      _arg_name="${_key##--name=}"
+      ;;
+    -n*)
+      _arg_name="${_key##-n}"
+      ;;
+    -c | --cups)
+      test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+      _arg_cups="$2"
+      shift
+      ;;
+    --cups=*)
+      _arg_cups="${_key##--cups=}"
+      ;;
+    -c*)
+      _arg_cups="${_key##-c}"
+      ;;
+    -l | --location)
+      test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+      _arg_location="$2"
+      shift
+      ;;
+    --location=*)
+      _arg_location="${_key##--location=}"
+      ;;
+    -l*)
+      _arg_location="${_key##-l}"
+      ;;
+    -o | --options)
+      test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+      _arg_options+=("$2")
+      shift
+      ;;
+    --options=*)
+      _arg_options+=("${_key##--options=}")
+      ;;
+    -o*)
+      _arg_options+=("${_key##-o}")
+      ;;
+    -h | --help)
+      print_help
+      exit 0
+      ;;
+    -h*)
+      print_help
+      exit 0
+      ;;
+    -v | --version)
+      echo "${version}"
+      exit 0
+      ;;
+    -v*)
+      echo "${version}"
+      exit 0
+      ;;
+    *)
+      _PRINT_HELP=yes die "FATAL ERROR: Got an unexpected argument '$1'" 1
+      ;;
+    esac
+    shift
+  done
 
-printer_icon="$(/usr/bin/ipptool -tv "ipp://${ip}/ipp/print" get-printer-attributes.test | awk -F, '/printer-icons/ {print $NF}')"
+}
 
-curl -skL "${printer_icon}" -o "${icon}"
+main() {
 
-echo "*APPrinterIconPath: \"${icon}\"" >>"${ppd}"
+  version="0.1"
+  prog_name="$(basename "${0}")"
 
-# Install printer
+  parse_commandline "$@"
 
-echo "Summary:"
-echo "  Display Name: ${name}"
-echo "  CUPS Name:    ${cups}"
-echo "  Location:     ${location}"
-echo "  IP address:   ${ip}"
-echo "  PPD:          ${ppd}"
-echo "  Icon:         ${icon}"
-echo "  Options:      ${options[*]}"
+  default_air_print_ppd="/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/Resources/AirPrint.ppd"
 
-if [ -z "${options[*]}" ]; then
-  lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" -o printer-is-shared=false
-else
-  lpadmin -p "${cups}" -D "${name}" -L "${location}" -E -v "ipp://${ip}" -P "${ppd}" "$(for item in "${options[@]}"; do echo "-o ${item}"; done)" -o printer-is-shared=false
-fi
+  # Check if printer is available
+
+  if ! nc -G 2 -z "${_arg_ip}" 631 2 &>/dev/null; then
+    echo "Error: Connection to ${_arg_ip}" && exit 1
+  fi
+
+  # Create custom PPD
+
+  ppd="/tmp/${_arg_cups}.ppd"
+
+  /System/Library/Printers/Libraries/ipp2ppd "ipp://${_arg_ip}" "${default_air_print_ppd}" >"${ppd}"
+
+  # Grab icon from printer
+
+  icon="/Library/Printers/Icons/${_arg_cups}.icns"
+
+  printer_icon="$(/usr/bin/ipptool -tv "ipp://${_arg_ip}/ipp/print" get-printer-attributes.test | awk -F, '/printer-icons/ {print $NF}')"
+
+  curl -skL "${printer_icon}" -o "${icon}"
+
+  echo "*APPrinterIconPath: \"${icon}\"" >>"${ppd}"
+
+  # Install printer
+
+  cat <<EOF
+Summary:
+  Display Name: ${_arg_name}
+  CUPS Name:    ${_arg_cups}
+  Location:     ${_arg_location}
+  IP address:   ${_arg_ip}
+  PPD:          ${ppd}
+  Icon:         ${icon}
+  Options:      ${_arg_options[*]}
+EOF
+
+  if [ -z "${_arg_options[*]}" ]; then
+
+    lpadmin \
+      -p "${_arg_cups}" \
+      -D "${_arg_name}" \
+      -L "${_arg_location}" \
+      -E -v "ipp://${_arg_ip}" \
+      -P "${ppd}" \
+      -o printer-is-shared=false
+
+  else
+
+    lpadmin \
+      -p "${_arg_cups}" \
+      -D "${_arg_name}" \
+      -L "${_arg_location}" \
+      -E -v "ipp://${_arg_ip}" \
+      -P "${ppd}" \
+      "$(printf -- "-o=%s " "${_arg_options[@]}")" \
+      -o printer-is-shared=false
+
+  fi
+
+}
+
+main "$@"
