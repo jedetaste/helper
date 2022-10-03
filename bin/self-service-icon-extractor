@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 app="${1}"
 
@@ -18,8 +18,8 @@ if [ -d "${app}" ]; then
 
     echo "icon_path: ${icon_path}"
 
-    echo "export: ${icon_path} to ${HOME}/james/icons/${app_basename//.app/}.png"
-    sips -z "512" "512" "${icon_path}" --out "${HOME}/james/icons/${app_basename//.app/}.png" --setProperty format png -i
+    echo "export: ${icon_path} to /tmp/${app_basename//.app/}.png"
+    sips -z "512" "512" "${icon_path}" --out "/tmp/${app_basename//.app/}.png" --setProperty format png -i
 
   else
 
@@ -31,11 +31,10 @@ if [ -d "${app}" ]; then
     if [ -s "${icon_path}" ]; then
 
       echo "icon_path: ${icon_path}"
-      echo "export: ${icon_path} to ${HOME}/james/icons/${app_basename//.app/}.png"
-      sips -z "512" "512" "${icon_path}" --out "${HOME}/james/icons/${app_basename//.app/}.png" --setProperty format png -i
+      echo "export: ${icon_path} to /tmp/${app_basename//.app/}.png"
+      sips -z "512" "512" "${icon_path}" --out "/tmp/${app_basename//.app/}.png" --setProperty format png -i
 
     else
-
       echo "error: no icon found"
     fi
 
